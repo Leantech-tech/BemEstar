@@ -1,0 +1,16 @@
+{
+  "name": "residencial-enseada-ubatuba",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Site do Bem Estar — apartamentos de temporada em Ubatuba.",
+  "scripts": {
+    "build": "esbuild assets/js/main.js --bundle --format=iife --outfile=assets/js/bundle.js",
+    "optimize:images": "node scripts/optimize-images.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  },
+  "dependencies": {
+    "sharp": "^0.35.4"
+  }
+}
