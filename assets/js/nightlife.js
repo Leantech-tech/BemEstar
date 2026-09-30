@@ -13,7 +13,7 @@ import { ICONS, guardImage } from './utils.js';
  * ============================================================
  */
 
-const IMG = 'assets/imagens/o que fazer a noite';
+const IMG = '/assets/imagens/o que fazer a noite';
 
 export const NIGHTLIFE = [
   {

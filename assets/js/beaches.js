@@ -16,7 +16,7 @@ import { renderPlaceTiles } from './place-tiles.js';
  *  Um toque no card abre o modal com a descrição da praia.
  * ============================================================ */
 
-const IMG = 'assets/imagens/nossas praias';
+const IMG = '/assets/imagens/nossas praias';
 
 /* Nota exibida no modal de cada praia. */
 const NOTE =

@@ -7,10 +7,14 @@ const dom = new JSDOM(html, { runScripts: 'outside-only', url: 'http://localhost
 const { window } = dom;
 const doc = window.document;
 
+(async () => {
 window.eval(fs.readFileSync('assets/js/bundle.js', 'utf8'));
 if (!doc.querySelector('#waterfallsGrid .tile')) {
   doc.dispatchEvent(new window.Event('DOMContentLoaded', { bubbles: true }));
 }
+// O init() é async (carrega os imóveis da API antes de renderizar):
+// espera um tick para os grids estarem preenchidos.
+await new Promise((r) => setTimeout(r, 0));
 
 let failures = 0;
 const check = (label, cond, extra = '') => {
@@ -20,7 +24,7 @@ const check = (label, cond, extra = '') => {
 
 /* ---- Estrutura das seções ---- */
 const sections = [...doc.querySelectorAll('main section')].map((s) => s.id || '(cta)');
-check('ordem das seções', sections.join(',') === 'inicio,como-funciona,apartamentos,praias,cachoeiras,pontos-turisticos,a-noite,localizacao', sections.join(' > '));
+check('ordem das seções', sections.join(',') === 'inicio,como-funciona,praias,cachoeiras,pontos-turisticos,a-noite,apartamentos,(cta)', sections.join(' > '));
 
 /* ---- Renderização ---- */
 check('6 tiles de praias', doc.querySelectorAll('#beachesGrid .tile').length === 6);
@@ -42,7 +46,7 @@ check('badge Cachoeira', overlay?.querySelector('.badge')?.textContent === 'Cach
 check('descrição presente', (overlay?.querySelector('.detail-block p')?.textContent || '').length > 40);
 check('tags presentes', overlay?.querySelectorAll('.detail-meta li').length === 2);
 check('nota de segurança presente', !!overlay?.querySelector('.attr-note'));
-check('galeria com proporção da foto (sem crop)', overlay?.querySelector('.gallery-main')?.style.aspectRatio === '1.776', overlay?.querySelector('.gallery-main')?.style.aspectRatio);
+check('galeria com proporção da foto (sem crop)', ['1.776', '1.776 / 1'].includes(overlay?.querySelector('.gallery-main')?.style.aspectRatio), overlay?.querySelector('.gallery-main')?.style.aspectRatio);
 overlay.querySelector('.modal-close').click();
 
 setTimeout(() => {
@@ -71,3 +75,4 @@ setTimeout(() => {
     }, 400);
   }, 400);
 }, 400);
+})().catch((err) => { console.error(err); process.exit(1); });

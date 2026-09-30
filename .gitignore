@@ -1,0 +1,14 @@
+# Credenciais e ambiente
+.env
+server/.env
+
+# Dependências
+node_modules/
+
+# Binários Go
+server/*.exe
+server/server
+
+# Temporários
+.tmp-img/
+*.log

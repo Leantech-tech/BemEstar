@@ -1,6 +1,6 @@
 import { formatMonth, isSameDay, stripTime, addMonths } from './utils.js';
 
-const WEEKDAYS = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+const WEEKDAYS = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
 
 /**
  * Seletor de período (entrada → saída).
@@ -53,9 +53,12 @@ export class DateRangePicker {
     this.mount.innerHTML = `
       <div class="cal">
         <div class="cal-header">
-          <select class="cal-select" data-cal="month-select" aria-label="Escolher mês e ano">
-            ${options.join('')}
-          </select>
+          <div class="cal-select-wrap">
+            <select class="cal-select" data-cal="month-select" aria-label="Escolher mês e ano">
+              ${options.join('')}
+            </select>
+            <svg class="cal-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
           <div class="cal-nav">
             <button type="button" class="cal-nav-btn" data-cal="prev" aria-label="Mês anterior"
               ${this._canGoPrev() ? '' : 'disabled'}>

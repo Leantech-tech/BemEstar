@@ -24,6 +24,16 @@ export function createGallery(mount, images, { alt = 'Foto', ratio } = {}) {
   const list = images.length ? images : [''];
   const multiple = list.length > 1;
 
+  // Precarrega todas as fotos para troca instantânea sem piscadas
+  if (multiple) {
+    list.forEach((src) => {
+      if (src) {
+        const img = new Image();
+        img.src = src;
+      }
+    });
+  }
+
   mount.innerHTML = `
     <figure class="gallery-main${multiple ? '' : ' is-single'}">
       <img data-gallery-main alt="${alt}" decoding="async" />
@@ -69,17 +79,26 @@ export function createGallery(mount, images, { alt = 'Foto', ratio } = {}) {
   };
 
   const show = (i) => {
-    if (!multiple) return;
-    if (switching) return;
+    if (!multiple || switching) return;
+    const targetIndex = (i + list.length) % list.length;
+    if (targetIndex === index) return;
+
     switching = true;
-    mainImg.classList.add('is-switching');
-    setTimeout(() => {
-      apply(i);
-      requestAnimationFrame(() => {
-        mainImg.classList.remove('is-switching');
-        switching = false;
-      });
-    }, 170);
+    const targetSrc = list[targetIndex];
+
+    const preload = new Image();
+    const done = () => {
+      apply(targetIndex);
+      switching = false;
+    };
+
+    preload.onload = done;
+    preload.onerror = done;
+    preload.src = targetSrc;
+
+    if (preload.complete) {
+      done();
+    }
   };
 
   mainImg.src = list[0];

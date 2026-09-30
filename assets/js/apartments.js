@@ -27,7 +27,7 @@
  * ============================================================
  */
 
-const IMG = 'assets/imagens/aptos';
+const IMG = '/assets/imagens/aptos';
 
 export const APARTMENTS = [
   {

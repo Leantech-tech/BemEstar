@@ -19,7 +19,7 @@ import { renderPlaceTiles } from './place-tiles.js';
  *  A ordem do array define as fileiras (duas por linha).
  * ============================================================ */
 
-const IMG = 'assets/imagens/nossas cachoeiras';
+const IMG = '/assets/imagens/nossas cachoeiras';
 
 /* Nota exibida no modal de cada cachoeira. */
 const NOTE =

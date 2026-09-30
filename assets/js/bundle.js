@@ -25,7 +25,7 @@
   };
 
   // assets/js/apartments.js
-  var IMG = "assets/imagens/aptos";
+  var IMG = "/assets/imagens/aptos";
   var APARTMENTS = [
     {
       id: "apto-01",
@@ -285,7 +285,7 @@
   }
 
   // assets/js/calendar.js
-  var WEEKDAYS = ["D", "S", "T", "Q", "Q", "S", "S"];
+  var WEEKDAYS = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "S\xC1B"];
   var DateRangePicker = class {
     /**
      * @param {HTMLElement} mount
@@ -324,9 +324,12 @@
       this.mount.innerHTML = `
       <div class="cal">
         <div class="cal-header">
-          <select class="cal-select" data-cal="month-select" aria-label="Escolher m\xEAs e ano">
-            ${options.join("")}
-          </select>
+          <div class="cal-select-wrap">
+            <select class="cal-select" data-cal="month-select" aria-label="Escolher m\xEAs e ano">
+              ${options.join("")}
+            </select>
+            <svg class="cal-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
           <div class="cal-nav">
             <button type="button" class="cal-nav-btn" data-cal="prev" aria-label="M\xEAs anterior"
               ${this._canGoPrev() ? "" : "disabled"}>
@@ -443,8 +446,8 @@
         <p class="bk-selection" data-role="selection" aria-live="polite"></p>
       </div>`;
       picker = new DateRangePicker(body.querySelector('[data-role="calendar"]'), {
-        onChange: (start, end) => {
-          state.checkIn = start;
+        onChange: (start2, end) => {
+          state.checkIn = start2;
           state.checkOut = end;
           updateSelection();
           renderFoot();
@@ -567,6 +570,14 @@
   function createGallery(mount, images, { alt = "Foto", ratio } = {}) {
     const list = images.length ? images : [""];
     const multiple = list.length > 1;
+    if (multiple) {
+      list.forEach((src) => {
+        if (src) {
+          const img = new Image();
+          img.src = src;
+        }
+      });
+    }
     mount.innerHTML = `
     <figure class="gallery-main${multiple ? "" : " is-single"}">
       <img data-gallery-main alt="${alt}" decoding="async" />
@@ -597,17 +608,22 @@
       thumbs.forEach((t, ti) => t.classList.toggle("is-active", ti === index));
     };
     const show = (i) => {
-      if (!multiple) return;
-      if (switching) return;
+      if (!multiple || switching) return;
+      const targetIndex = (i + list.length) % list.length;
+      if (targetIndex === index) return;
       switching = true;
-      mainImg.classList.add("is-switching");
-      setTimeout(() => {
-        apply(i);
-        requestAnimationFrame(() => {
-          mainImg.classList.remove("is-switching");
-          switching = false;
-        });
-      }, 170);
+      const targetSrc = list[targetIndex];
+      const preload = new Image();
+      const done = () => {
+        apply(targetIndex);
+        switching = false;
+      };
+      preload.onload = done;
+      preload.onerror = done;
+      preload.src = targetSrc;
+      if (preload.complete) {
+        done();
+      }
     };
     mainImg.src = list[0];
     mount.querySelector('[data-gallery="prev"]')?.addEventListener("click", () => show(index - 1));
@@ -639,18 +655,87 @@
   }
 
   // assets/js/detail.js
+  var brl = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+  function esc(text) {
+    return String(text ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+  }
+  function bedsBreakdown(a) {
+    const parts = [];
+    if (a.doubleBeds > 0) parts.push(plural(a.doubleBeds, "cama de casal", "camas de casal"));
+    if (a.singleBeds > 0) parts.push(plural(a.singleBeds, "cama de solteiro", "camas de solteiro"));
+    if (a.bunkBeds > 0) parts.push(plural(a.bunkBeds, "beliche", "beliches"));
+    if (a.sofaBeds > 0) parts.push(plural(a.sofaBeds, "sof\xE1-cama", "sof\xE1s-cama"));
+    return parts.join(" \xB7 ");
+  }
   function openApartmentDetail(apartment) {
     const images = apartment.images.length ? apartment.images : [""];
     const meta = [
       { icon: ICONS.users, label: formatGuests(apartment.capacity) },
       { icon: ICONS.bedroom, label: plural(apartment.bedrooms, "quarto", "quartos") },
-      { icon: ICONS.bed, label: plural(apartment.beds, "cama", "camas") },
+      ...apartment.suites > 0 ? [{ icon: ICONS.bedroom, label: plural(apartment.suites, "su\xEDte", "su\xEDtes") }] : [],
+      ...apartment.beds > 0 ? [{ icon: ICONS.bed, label: `${plural(apartment.beds, "cama", "camas")} (${bedsBreakdown(apartment)})` }] : [],
       { icon: ICONS.bath, label: plural(apartment.bathrooms, "banheiro", "banheiros") },
+      ...apartment.parkingSpaces > 0 ? [{ icon: ICONS.pin, label: plural(apartment.parkingSpaces, "vaga de garagem", "vagas de garagem") }] : [],
       ...apartment.sizeM2 ? [{ icon: ICONS.area, label: `${apartment.sizeM2} m\xB2` }] : []
     ];
+    const rules = [
+      apartment.checkin && { label: "Check-in", value: `a partir das ${apartment.checkin}` },
+      apartment.checkout && { label: "Check-out", value: `at\xE9 as ${apartment.checkout}` },
+      apartment.minStay > 0 && { label: "Estadia m\xEDnima", value: plural(apartment.minStay, "noite", "noites") },
+      { label: "Aceita animais", value: apartment.petsAllowed ? "Sim" : "N\xE3o" },
+      { label: "Permite eventos", value: apartment.eventsAllowed ? "Sim" : "N\xE3o" },
+      { label: "Permite fumar", value: apartment.smokingAllowed ? "Sim" : "N\xE3o" }
+    ].filter(Boolean);
+    const costs = [
+      apartment.dailyPrice && { label: "Di\xE1ria (semana)", value: brl.format(apartment.dailyPrice) },
+      apartment.weekendPrice && { label: "Di\xE1ria (fim de semana)", value: brl.format(apartment.weekendPrice) },
+      apartment.cleaningFee && { label: "Taxa de limpeza", value: brl.format(apartment.cleaningFee) },
+      apartment.securityDeposit && { label: "Cau\xE7\xE3o", value: brl.format(apartment.securityDeposit) }
+    ].filter(Boolean);
     const html = `
     <article class="detail">
-      <div class="detail-gallery" data-gallery-mount></div>
+      <div class="detail-col-left">
+        <div class="detail-gallery" data-gallery-mount></div>
+
+        <div class="detail-blocks">
+          ${apartment.amenities.length ? `<div class="detail-block">
+                   <h4>Comodidades</h4>
+                   <ul class="detail-amenities">
+                     ${apartment.amenities.map((a) => `<li>${amenityIcon(a)}<span>${esc(a)}</span></li>`).join("")}
+                   </ul>
+                 </div>` : ""}
+
+          <div class="detail-block">
+            <h4>Regras da estadia</h4>
+            <ul class="detail-facts">
+              ${rules.map((r) => `<li><span>${esc(r.label)}</span><strong>${esc(r.value)}</strong></li>`).join("")}
+            </ul>
+            ${apartment.houseRules ? `<p class="detail-notes">${esc(apartment.houseRules)}</p>` : ""}
+            ${apartment.guestInstructions ? `<p class="detail-notes">${esc(apartment.guestInstructions)}</p>` : ""}
+            ${!apartment.houseRules && !apartment.guestInstructions ? `<p class="detail-notes">\u{1F511}Para entrar na casa:
+O port\xE3o fica encostado, na porta da sala tem o cofre com a chave dentro (senha 4995). Coloque a senha e abra a tampa, a chave da casa e do port\xE3o estar\xE1 l\xE1 dentro
+\u27A1\uFE0FPorta cadeado: *4995*
+
+\u27A1\uFE0FWi-Fi
+Rede: Recanto Uba
+Senha: recantouba23
+
+\u267B\uFE0FCOLETA DE LIXO (manh\xE3)
+ter\xE7a, quinta e s\xE1bado
+
+\u{1F6AB}PROIBIDO SOM AUTOMOTIVO
+
+\u{1F3A6} Existe uma c\xE2mera de seguran\xE7a voltada para o port\xE3o de entrada.
+
+\u{1F3CA}\u2640\uFE0F A PISCINA PODE ser usada ap\xF3s as 23:00hs, apenas pedimos pra controlar o barulho e n\xE3o pular, pra respeitarmos os vizinhos.
+
+
+Ol\xE1, boa noite , do lado de fora da casa de m\xE1quina tem 2 interruptor, lado esquerdo \xE9 o Led dentro da piscina , da direita liga os jatos de hidromassagem, com essa da hidromassagem ligado , abre a porta da casa de m\xE1quina e abre aos poucos o registro que esta escrito cascata nele ,,, quando quiser press\xE3o mais forte na hidromassagem tem que fechar a cascata , pois se utiliza apenas um motor , quando encerrar o uso , s\xF3 desligar o interruptor do lado de fora da direita
+
+Lembrando que amanh\xE3 cedo ir\xE1 ligar automaticamente, para filtrar a \xE1gua, deixe que vai desligar automaticamente no timer</p>` : ""}
+          </div>
+        </div>
+      </div>
 
       <div class="detail-info">
         <div class="detail-head">
@@ -659,34 +744,41 @@
             <span class="badge ${apartment.available ? "badge-open" : "badge-closed"}">
               ${apartment.available ? "Dispon\xEDvel" : "Indispon\xEDvel no momento"}
             </span>
-            <h3>${apartment.name}</h3>
-            <p class="detail-location">${ICONS.pin}<span>${apartment.location}</span></p>
+            <h3>${esc(apartment.name)}</h3>
+            <p class="detail-location">${ICONS.pin}<span>${esc(apartment.location)}</span></p>
+            ${apartment.address ? `<p class="detail-address">${esc(apartment.address)}</p>` : ""}
+            ${apartment.referencePoint ? `<p class="detail-address">${esc(apartment.referencePoint)}</p>` : ""}
           </div>
         </div>
 
         <ul class="detail-meta">
-          ${meta.map((m) => `<li>${m.icon}<span>${m.label}</span></li>`).join("")}
+          ${meta.map((m) => `<li>${m.icon}<span>${esc(m.label)}</span></li>`).join("")}
         </ul>
 
-        <div class="detail-block">
-          <h4>Sobre o apartamento</h4>
-          <p>${apartment.description}</p>
-        </div>
+        ${apartment.description ? `<div class="detail-block">
+                 <h4>Sobre o im\xF3vel</h4>
+                 <p>${esc(apartment.description)}</p>
+               </div>` : ""}
 
-        <div class="detail-block">
-          <h4>Comodidades</h4>
-          <ul class="detail-amenities">
-            ${apartment.amenities.map((a) => `<li>${amenityIcon(a)}<span>${a}</span></li>`).join("")}
-          </ul>
-        </div>
+        ${costs.length ? `<div class="detail-block">
+                 <h4>Valores</h4>
+                 <ul class="detail-facts">
+                   ${costs.map((c) => `<li><span>${esc(c.label)}</span><strong>${esc(c.value)}</strong></li>`).join("")}
+                 </ul>
+               </div>` : ""}
 
-        <div class="detail-cta">
-          <div class="detail-price">
-            <span class="detail-price-label">Investimento</span>
-            <strong>${apartment.price ?? "Sob consulta"}</strong>
-          </div>
-          ${apartment.available ? `<button type="button" class="btn btn-primary btn-lg" data-action="rent">Alugar ${ICONS.arrowRight}</button>` : '<p class="detail-unavailable">Este apartamento n\xE3o est\xE1 dispon\xEDvel no momento. Fale conosco para conhecer outras op\xE7\xF5es.</p>'}
+        ${apartment.priceNotes ? `<div class="detail-block">
+                 <h4>Observa\xE7\xF5es sobre os valores</h4>
+                 <p>${esc(apartment.priceNotes)}</p>
+               </div>` : ""}
+      </div>
+
+      <div class="detail-cta">
+        <div class="detail-price">
+          <span class="detail-price-label">Investimento</span>
+          <strong>${apartment.price ? esc(apartment.price) : "Sob consulta"}</strong>
         </div>
+        ${apartment.available ? `<button type="button" class="btn btn-primary btn-lg" data-action="rent">Alugar ${ICONS.arrowRight}</button>` : '<p class="detail-unavailable">Este im\xF3vel n\xE3o est\xE1 dispon\xEDvel no momento. Fale conosco para conhecer outras op\xE7\xF5es.</p>'}
       </div>
     </article>`;
     const modal = openModal(html, { variant: "modal-detail" });
@@ -783,7 +875,7 @@
   }
 
   // assets/js/beaches.js
-  var IMG2 = "assets/imagens/nossas praias";
+  var IMG2 = "/assets/imagens/nossas praias";
   var NOTE = "As condi\xE7\xF5es do mar variam com o vento e a mar\xE9. Em dias de ressaca, prefira as praias mais protegidas e siga sempre a orienta\xE7\xE3o dos guarda-vidas.";
   var BEACHES = [
     {
@@ -859,7 +951,7 @@
   }
 
   // assets/js/waterfalls.js
-  var IMG3 = "assets/imagens/nossas cachoeiras";
+  var IMG3 = "/assets/imagens/nossas cachoeiras";
   var NOTE2 = "O acesso \xE0s cachoeiras pode incluir trilhas e, em alguns pontos, taxa de conserva\xE7\xE3o local. Evite dias de chuva, use cal\xE7ado fechado e confirme as condi\xE7\xF5es antes da visita.";
   var WATERFALLS = [
     {
@@ -945,7 +1037,7 @@
   }
 
   // assets/js/attractions.js
-  var IMG4 = "assets/imagens/pontos tur\xEDsticos";
+  var IMG4 = "/assets/imagens/pontos tur\xEDsticos";
   var NOTE3 = "Hor\xE1rios, programa\xE7\xE3o e disponibilidade podem variar conforme a temporada e as condi\xE7\xF5es locais. Confirme antes de programar sua visita.";
   var ATTRACTIONS = [
     {
@@ -1039,7 +1131,7 @@
   }
 
   // assets/js/nightlife.js
-  var IMG5 = "assets/imagens/o que fazer a noite";
+  var IMG5 = "/assets/imagens/o que fazer a noite";
   var NIGHTLIFE = [
     {
       id: "rua-guarani",
@@ -1309,6 +1401,69 @@
       if (icon) el.innerHTML = icon;
     });
   }
+  var API_IMOVEIS_URL = "/api/imoveis";
+  var API_EMPRESA_URL = "/api/empresa";
+  var APARTMENTS2 = APARTMENTS;
+  function linkedWhatsApp() {
+    const segment = window.location.pathname.split("/").filter(Boolean).pop() ?? "";
+    const digits = segment.replace(/\D/g, "");
+    return /^\d{10,15}$/.test(digits) ? digits : null;
+  }
+  async function loadApartments() {
+    const whatsapp = linkedWhatsApp();
+    if (!whatsapp) {
+      APARTMENTS2 = [];
+      return;
+    }
+    if (typeof fetch === "undefined") return;
+    try {
+      const response = await fetch(`${API_IMOVEIS_URL}?whatsapp=${whatsapp}`);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      const valid = Array.isArray(data) && data.every((a) => a && a.id && a.name);
+      if (valid) APARTMENTS2 = data;
+    } catch {
+    }
+  }
+  function formatWhatsAppDisplay(digits) {
+    if (digits.length === 11) return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+    if (digits.length === 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+    return digits;
+  }
+  async function loadCompany() {
+    const whatsapp = linkedWhatsApp();
+    if (!whatsapp || typeof fetch === "undefined") return;
+    try {
+      const response = await fetch(`${API_EMPRESA_URL}?whatsapp=${whatsapp}`);
+      if (!response.ok) return;
+      const empresa = await response.json();
+      if (!empresa || !empresa.id) return;
+      if (empresa.name) {
+        SITE_CONFIG.brandName = empresa.name;
+        document.title = `${empresa.name} \u2014 Apartamentos para temporada em Ubatuba`;
+      }
+      const digits = String(empresa.whatsapp ?? "").replace(/\D/g, "");
+      if (digits) {
+        const local = digits.slice(-11);
+        SITE_CONFIG.whatsappNumber = "55" + local;
+        SITE_CONFIG.whatsappDisplay = formatWhatsAppDisplay(local);
+      }
+      if (empresa.address || empresa.city) {
+        const city = empresa.city ? empresa.state ? `${empresa.city} \u2014 ${empresa.state}` : empresa.city : SITE_CONFIG.address.city;
+        SITE_CONFIG.address = {
+          line1: empresa.address || SITE_CONFIG.address.line1,
+          line2: empresa.city || SITE_CONFIG.address.line2,
+          city
+        };
+        const query = [empresa.address, empresa.city, empresa.state].filter(Boolean).join(", ");
+        if (query) {
+          SITE_CONFIG.mapsUrl = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(query);
+          SITE_CONFIG.mapsEmbed = "https://www.google.com/maps?q=" + encodeURIComponent(query) + "&output=embed";
+        }
+      }
+    } catch {
+    }
+  }
   function apartmentCard(apartment, index) {
     const amenitiesPreview = apartment.amenities.slice(0, 3);
     const extra = apartment.amenities.length - amenitiesPreview.length;
@@ -1346,12 +1501,20 @@
   function renderApartments() {
     const grid = document.getElementById("apartmentsGrid");
     if (!grid) return;
-    grid.innerHTML = APARTMENTS.map(apartmentCard).join("");
+    if (!linkedWhatsApp()) {
+      grid.innerHTML = '<p class="section-sub">Este site ainda n\xE3o est\xE1 vinculado a uma empresa. Acesse o endere\xE7o com o n\xFAmero de WhatsApp da empresa no final (ex.: site.com/12997353792).</p>';
+      return;
+    }
+    if (APARTMENTS2.length === 0) {
+      grid.innerHTML = '<p class="section-sub">Nenhum im\xF3vel dispon\xEDvel no momento.</p>';
+      return;
+    }
+    grid.innerHTML = APARTMENTS2.map(apartmentCard).join("");
     grid.querySelectorAll("img").forEach(guardImage);
     grid.querySelectorAll('[data-action="details"]').forEach((el) => {
       el.addEventListener("click", () => {
         const id = el.closest("[data-apartment]").dataset.apartment;
-        const apartment = APARTMENTS.find((a) => a.id === id);
+        const apartment = APARTMENTS2.find((a) => a.id === id);
         if (apartment) openApartmentDetail(apartment);
       });
     });
@@ -1479,8 +1642,12 @@
     if (year) year.textContent = String((/* @__PURE__ */ new Date()).getFullYear());
   }
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
+    document.addEventListener("DOMContentLoaded", start);
   } else {
+    start();
+  }
+  async function start() {
+    await Promise.all([loadApartments(), loadCompany()]);
     init();
   }
 })();

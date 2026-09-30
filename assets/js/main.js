@@ -1,5 +1,5 @@
 import { SITE_CONFIG } from './config.js';
-import { APARTMENTS } from './apartments.js';
+import { APARTMENTS as FALLBACK_APARTMENTS } from './apartments.js';
 import { openApartmentDetail } from './detail.js';
 import { renderBeaches } from './beaches.js';
 import { renderWaterfalls } from './waterfalls.js';
@@ -46,7 +46,106 @@ function injectIcons() {
 
 /* ============================================================
  *  Cards dos apartamentos
+ * ------------------------------------------------------------
+ *  Os dados vêm da API do backend Go (/api/imoveis), lida
+ *  direto do banco, filtrada pela empresa vinculada na URL:
+ *  acessar o site com /<whatsapp-da-empresa> no final (ex.:
+ *  site.com/12997353792). Sem vínculo válido nenhum imóvel é
+ *  exibido. Se a API estiver fora do ar e houver vínculo, o
+ *  site cai para os dados locais de exemplo (apartments.js).
  * ============================================================ */
+const API_IMOVEIS_URL = '/api/imoveis';
+const API_EMPRESA_URL = '/api/empresa';
+let APARTMENTS = FALLBACK_APARTMENTS;
+
+/**
+ * Extrai o WhatsApp da empresa do final da URL.
+ * Ex.: "site.com/12997353792/" -> "12997353792"; sem vínculo -> null.
+ */
+function linkedWhatsApp() {
+  const segment = window.location.pathname.split('/').filter(Boolean).pop() ?? '';
+  const digits = segment.replace(/\D/g, '');
+  return /^\d{10,15}$/.test(digits) ? digits : null;
+}
+
+async function loadApartments() {
+  const whatsapp = linkedWhatsApp();
+  if (!whatsapp) {
+    APARTMENTS = [];
+    return;
+  }
+  if (typeof fetch === 'undefined') return; // ambiente de teste (jsdom)
+
+  try {
+    const response = await fetch(`${API_IMOVEIS_URL}?whatsapp=${whatsapp}`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    const valid = Array.isArray(data) && data.every((a) => a && a.id && a.name);
+    if (valid) APARTMENTS = data;
+  } catch {
+    /* mantém os dados locais de exemplo */
+  }
+}
+
+/* ============================================================
+ *  Dados da empresa vinculada
+ * ------------------------------------------------------------
+ *  Busca /api/empresa?whatsapp=... e sobrescreve o SITE_CONFIG
+ *  (marca, WhatsApp, endereço, mapa) com os dados cadastrados
+ *  no banco. Se a API estiver fora, mantém o config.js.
+ * ============================================================ */
+function formatWhatsAppDisplay(digits) {
+  if (digits.length === 11) return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+  if (digits.length === 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+  return digits;
+}
+
+async function loadCompany() {
+  const whatsapp = linkedWhatsApp();
+  if (!whatsapp || typeof fetch === 'undefined') return; // sem vínculo ou jsdom
+
+  try {
+    const response = await fetch(`${API_EMPRESA_URL}?whatsapp=${whatsapp}`);
+    if (!response.ok) return;
+    const empresa = await response.json();
+    if (!empresa || !empresa.id) return;
+
+    if (empresa.name) {
+      SITE_CONFIG.brandName = empresa.name;
+      document.title = `${empresa.name} — Apartamentos para temporada em Ubatuba`;
+    }
+
+    const digits = String(empresa.whatsapp ?? '').replace(/\D/g, '');
+    if (digits) {
+      const local = digits.slice(-11);
+      SITE_CONFIG.whatsappNumber = '55' + local;
+      SITE_CONFIG.whatsappDisplay = formatWhatsAppDisplay(local);
+    }
+
+    if (empresa.address || empresa.city) {
+      const city = empresa.city
+        ? empresa.state
+          ? `${empresa.city} — ${empresa.state}`
+          : empresa.city
+        : SITE_CONFIG.address.city;
+      SITE_CONFIG.address = {
+        line1: empresa.address || SITE_CONFIG.address.line1,
+        line2: empresa.city || SITE_CONFIG.address.line2,
+        city,
+      };
+      const query = [empresa.address, empresa.city, empresa.state].filter(Boolean).join(', ');
+      if (query) {
+        SITE_CONFIG.mapsUrl =
+          'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(query);
+        SITE_CONFIG.mapsEmbed =
+          'https://www.google.com/maps?q=' + encodeURIComponent(query) + '&output=embed';
+      }
+    }
+  } catch {
+    /* mantém a configuração padrão do config.js */
+  }
+}
+
 function apartmentCard(apartment, index) {
   const amenitiesPreview = apartment.amenities.slice(0, 3);
   const extra = apartment.amenities.length - amenitiesPreview.length;
@@ -90,6 +189,19 @@ function apartmentCard(apartment, index) {
 function renderApartments() {
   const grid = document.getElementById('apartmentsGrid');
   if (!grid) return;
+
+  if (!linkedWhatsApp()) {
+    grid.innerHTML =
+      '<p class="section-sub">Este site ainda não está vinculado a uma empresa. ' +
+      'Acesse o endereço com o número de WhatsApp da empresa no final (ex.: site.com/12997353792).</p>';
+    return;
+  }
+
+  if (APARTMENTS.length === 0) {
+    grid.innerHTML = '<p class="section-sub">Nenhum imóvel disponível no momento.</p>';
+    return;
+  }
+
   grid.innerHTML = APARTMENTS.map(apartmentCard).join('');
   grid.querySelectorAll('img').forEach(guardImage);
 
@@ -253,7 +365,12 @@ function init() {
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('DOMContentLoaded', start);
 } else {
+  start();
+}
+
+async function start() {
+  await Promise.all([loadApartments(), loadCompany()]);
   init();
 }

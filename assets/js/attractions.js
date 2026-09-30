@@ -14,7 +14,7 @@ import { ICONS, guardImage, placeholderImage } from './utils.js';
  * ============================================================
  */
 
-const IMG = 'assets/imagens/pontos turísticos';
+const IMG = '/assets/imagens/pontos turísticos';
 
 /* Nota exibida no modal de cada ponto turístico. */
 const NOTE =
