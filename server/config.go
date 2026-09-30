@@ -10,13 +10,13 @@ import (
 
 // Config agrupa as variáveis de ambiente do servidor.
 type Config struct {
-	DBHost   string
-	DBPort   string
-	DBName   string
-	DBUser   string
-	DBPass   string
-	Port     string
-	SiteDir  string
+	DBHost  string
+	DBPort  string
+	DBName  string
+	DBUser  string
+	DBPass  string
+	Port    string
+	SiteDir string
 }
 
 // ConfigFromEnv lê a configuração das variáveis de ambiente,
@@ -29,14 +29,14 @@ func ConfigFromEnv() Config {
 		DBUser:  envOr("DB_USER", "postgres"),
 		DBPass:  os.Getenv("DB_PASSWORD"),
 		Port:    envOr("PORT", "8080"),
-		SiteDir: envOr("SITE_DIR", ".."),
+		SiteDir: envOr("SITE_DIR", "."),
 	}
 }
 
 // DSN monta a string de conexão do PostgreSQL.
 func (c Config) DSN() string {
 	dsn := fmt.Sprintf(
-		"host=%s port=%s dbname=%s user=%s sslmode=disable",
+		"host=%s port=%s dbname=%s user=%s sslmode=disable connect_timeout=3",
 		c.DBHost, c.DBPort, c.DBName, c.DBUser,
 	)
 	if c.DBPass != "" {

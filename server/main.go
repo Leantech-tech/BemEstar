@@ -1,11 +1,13 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 
 	_ "github.com/lib/pq"
 )
@@ -23,7 +25,10 @@ func main() {
 	// O site funciona sem banco: a API fica indisponível (503) e o
 	// frontend usa os dados de exemplo embutidos.
 	var db *sql.DB
-	if err := conn.Ping(); err != nil {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	if err := conn.PingContext(ctx); err != nil {
 		log.Printf("AVISO: banco indisponível (%v) — a API de imóveis ficará fora do ar e o site usará os dados de exemplo", err)
 		conn.Close()
 	} else {
