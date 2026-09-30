@@ -12,6 +12,7 @@ RUN npm run build
 # 2. Estágio Backend: Compilação do servidor em Go
 # ============================================================
 FROM golang:1.24-alpine AS backend-builder
+ENV GOTOOLCHAIN=auto
 WORKDIR /app
 COPY server/go.mod server/go.sum ./server/
 WORKDIR /app/server
