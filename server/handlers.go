@@ -11,47 +11,180 @@ import (
 
 // ImovelDTO é o formato exposto à API, pronto para o frontend consumir.
 type ImovelDTO struct {
-	ID           string   `json:"id"`
-	Code         string   `json:"code"`
-	Name         string   `json:"name"`
-	Type         string   `json:"type"`
-	Location     string   `json:"location"`
-	Address      string   `json:"address"`
-	Reference    string   `json:"referencePoint"`
-	Capacity     int      `json:"capacity"`
-	Bedrooms     int      `json:"bedrooms"`
-	Suites       int      `json:"suites"`
-	Beds         int      `json:"beds"`
-	DoubleBeds   int      `json:"doubleBeds"`
-	SingleBeds   int      `json:"singleBeds"`
-	BunkBeds     int      `json:"bunkBeds"`
-	SofaBeds     int      `json:"sofaBeds"`
-	Bathrooms    int      `json:"bathrooms"`
-	Parking      int      `json:"parkingSpaces"`
-	SizeM2       *int     `json:"sizeM2"`
-	Price        *string  `json:"price"`
-	DailyPrice   *float64 `json:"dailyPrice"`
-	WeekendPrice *float64 `json:"weekendPrice"`
-	CleaningFee  *float64 `json:"cleaningFee"`
-	SecurityDep  *float64 `json:"securityDeposit"`
-	PriceNotes   string   `json:"priceNotes"`
-	Available    bool     `json:"available"`
-	Description  string   `json:"description"`
-	Amenities    []string `json:"amenities"`
-	Images       []string `json:"images"`
-	Featured     bool     `json:"featured"`
-	Checkin      string   `json:"checkin"`
-	Checkout     string   `json:"checkout"`
-	MinStay      int      `json:"minStay"`
-	PetsAllowed  bool     `json:"petsAllowed"`
-	EventsAllowed bool    `json:"eventsAllowed"`
-	SmokingAllowed bool   `json:"smokingAllowed"`
-	HouseRules   string   `json:"houseRules"`
-	GuestInfo    string   `json:"guestInstructions"`
+	ID             string   `json:"id"`
+	Code           string   `json:"code"`
+	Name           string   `json:"name"`
+	Type           string   `json:"type"`
+	Location       string   `json:"location"`
+	Address        string   `json:"address"`
+	Reference      string   `json:"referencePoint"`
+	Capacity       int      `json:"capacity"`
+	Bedrooms       int      `json:"bedrooms"`
+	Suites         int      `json:"suites"`
+	Beds           int      `json:"beds"`
+	DoubleBeds     int      `json:"doubleBeds"`
+	SingleBeds     int      `json:"singleBeds"`
+	BunkBeds       int      `json:"bunkBeds"`
+	SofaBeds       int      `json:"sofaBeds"`
+	Bathrooms      int      `json:"bathrooms"`
+	Parking        int      `json:"parkingSpaces"`
+	SizeM2         *int     `json:"sizeM2"`
+	Price          *string  `json:"price"`
+	DailyPrice     *float64 `json:"dailyPrice"`
+	WeekendPrice   *float64 `json:"weekendPrice"`
+	CleaningFee    *float64 `json:"cleaningFee"`
+	SecurityDep    *float64 `json:"securityDeposit"`
+	PriceNotes     string   `json:"priceNotes"`
+	Available      bool     `json:"available"`
+	Description    string   `json:"description"`
+	Amenities      []string `json:"amenities"`
+	Images         []string `json:"images"`
+	Featured       bool     `json:"featured"`
+	Checkin        string   `json:"checkin"`
+	Checkout       string   `json:"checkout"`
+	MinStay        int      `json:"minStay"`
+	PetsAllowed    bool     `json:"petsAllowed"`
+	EventsAllowed  bool     `json:"eventsAllowed"`
+	SmokingAllowed bool     `json:"smokingAllowed"`
+	HouseRules     string   `json:"houseRules"`
+	GuestInfo      string   `json:"guestInstructions"`
 }
 
 type App struct {
 	db *sql.DB
+}
+
+// PontoCategoriaDTO é a categoria de ponto de interesse exposta à API.
+type PontoCategoriaDTO struct {
+	ID    string `json:"id"`
+	Name  string `json:"name"`
+	Slug  string `json:"slug"`
+	Icon  string `json:"icon"`
+	Order int    `json:"order"`
+}
+
+// PontoInteresseDTO é o ponto de interesse exposto à API, com os campos
+// já prontos para o frontend (endereço montado, URL de mídia pública).
+type PontoInteresseDTO struct {
+	ID           string  `json:"id"`
+	Name         string  `json:"name"`
+	Description  string  `json:"description"`
+	Address      string  `json:"address"`
+	Neighborhood string  `json:"neighborhood"`
+	City         string  `json:"city"`
+	State        string  `json:"state"`
+	Zip          string  `json:"zip"`
+	Latitude     float64 `json:"latitude"`
+	Longitude    float64 `json:"longitude"`
+	Phone        string  `json:"phone"`
+	Site         string  `json:"site"`
+	Image        string  `json:"image"`
+	Featured     bool    `json:"featured"`
+	CategoryID   string  `json:"categoryId"`
+}
+
+// PontosInteresseResponse agrupa as categorias ativas e os pontos
+// publicados da empresa vinculada.
+type PontosInteresseResponse struct {
+	Categories []PontoCategoriaDTO `json:"categories"`
+	Points     []PontoInteresseDTO `json:"points"`
+}
+
+// listPontosInteresse retorna as categorias ativas e os pontos de
+// interesse ativos e publicados da empresa vinculada via WhatsApp
+// (?whatsapp=...). Sem vínculo válido, retorna listas vazias.
+func (a *App) listPontosInteresse(w http.ResponseWriter, r *http.Request) {
+	if a.db == nil {
+		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "banco de dados indisponível"})
+		return
+	}
+
+	out := PontosInteresseResponse{
+		Categories: []PontoCategoriaDTO{},
+		Points:     []PontoInteresseDTO{},
+	}
+
+	empresaID, ok := a.resolveEmpresa(r, r.URL.Query().Get("whatsapp"))
+	if !ok {
+		writeJSON(w, http.StatusOK, out)
+		return
+	}
+
+	catRows, err := a.db.QueryContext(r.Context(), `
+		SELECT id, coalesce(nome, ''), coalesce(slug, ''), coalesce(icone, ''), coalesce(ordem, 999)
+		FROM categorias_ponto_interesse
+		WHERE empresa_id = $1::uuid AND ativo
+		ORDER BY ordem, nome`, empresaID)
+	if err != nil {
+		respondError(w, err)
+		return
+	}
+	defer catRows.Close()
+
+	for catRows.Next() {
+		var c PontoCategoriaDTO
+		if err := catRows.Scan(&c.ID, &c.Name, &c.Slug, &c.Icon, &c.Order); err != nil {
+			respondError(w, err)
+			return
+		}
+		out.Categories = append(out.Categories, c)
+	}
+	if err := catRows.Err(); err != nil {
+		respondError(w, err)
+		return
+	}
+
+	pontoRows, err := a.db.QueryContext(r.Context(), `
+		SELECT p.id, p.nome,
+		       coalesce(p.descricao, ''),
+		       coalesce(p.endereco, ''), coalesce(p.numero, ''), coalesce(p.complemento, ''),
+		       coalesce(p.bairro, ''), coalesce(p.cidade, ''), coalesce(p.uf, ''), coalesce(p.cep, ''),
+		       p.latitude, p.longitude,
+		       coalesce(p.telefone, ''), coalesce(p.site_url, ''), coalesce(p.imagem_url, ''),
+		       p.destaque, p.categoria_id
+		FROM pontos_interesse p
+		JOIN categorias_ponto_interesse c ON c.id = p.categoria_id AND c.ativo
+		WHERE p.empresa_id = $1::uuid
+		  AND p.ativo AND p.publicado
+		ORDER BY p.destaque DESC, p.nome`, empresaID)
+	if err != nil {
+		respondError(w, err)
+		return
+	}
+	defer pontoRows.Close()
+
+	for pontoRows.Next() {
+		var (
+			it                            PontoInteresseDTO
+			endereco, numero, complemento string
+			uf, cep                       string
+		)
+		if err := pontoRows.Scan(
+			&it.ID, &it.Name, &it.Description,
+			&endereco, &numero, &complemento,
+			&it.Neighborhood, &it.City, &uf, &cep,
+			&it.Latitude, &it.Longitude,
+			&it.Phone, &it.Site, &it.Image,
+			&it.Featured, &it.CategoryID,
+		); err != nil {
+			respondError(w, err)
+			return
+		}
+		it.State = uf
+		it.Zip = cep
+		it.Address = buildAddress(endereco, numero, complemento,
+			it.Neighborhood, it.City, uf, cep, false)
+		if it.Image != "" {
+			it.Image = mediaURL(it.Image)
+		}
+		out.Points = append(out.Points, it)
+	}
+	if err := pontoRows.Err(); err != nil {
+		respondError(w, err)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, out)
 }
 
 // EmpresaDTO expõe os dados públicos da empresa vinculada ao site.
@@ -477,6 +610,21 @@ func isUUID(s string) bool {
 	return true
 }
 
+// isValidImovelID verifica se é um UUID válido ou um ID local conhecido (fallback).
+func isValidImovelID(s string) bool {
+	if isUUID(s) {
+		return true
+	}
+	// IDs locais conhecidos (fallback do frontend)
+	localIDs := map[string]bool{
+		"apto-01": true,
+		"apto-02": true,
+		"apto-03": true,
+		"apto-04": true,
+	}
+	return localIDs[s]
+}
+
 func writeJSON(w http.ResponseWriter, status int, payload any) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -486,4 +634,215 @@ func writeJSON(w http.ResponseWriter, status int, payload any) {
 
 func respondError(w http.ResponseWriter, err error) {
 	writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+}
+
+// AvaliacaoDTO representa uma avaliação de imóvel.
+type AvaliacaoDTO struct {
+	ID        string  `json:"id"`
+	ImovelID  string  `json:"imovel_id"`
+	Nome      string  `json:"nome"`
+	Nota      int     `json:"nota"`
+	Comentario string `json:"comentario"`
+	Data      string  `json:"data"`
+}
+
+type AvaliacoesResponse struct {
+	Media      float64       `json:"media"`
+	Total      int           `json:"total"`
+	Distribuicao map[int]int `json:"distribuicao"`
+	Avaliacoes []AvaliacaoDTO `json:"avaliacoes"`
+}
+
+// listAvaliacoes retorna as avaliações de um imóvel.
+func (a *App) listAvaliacoes(w http.ResponseWriter, r *http.Request) {
+	if a.db == nil {
+		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "banco indisponível"})
+		return
+	}
+	imovelID := r.PathValue("id")
+	if !isValidImovelID(imovelID) {
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": "imóvel não encontrado"})
+		return
+	}
+
+	// IDs locais (fallback) não existem no banco — retorna vazio
+	if !isUUID(imovelID) {
+		writeJSON(w, http.StatusOK, AvaliacoesResponse{
+			Media:        0,
+			Total:        0,
+			Distribuicao: map[int]int{1: 0, 2: 0, 3: 0, 4: 0, 5: 0},
+			Avaliacoes:   []AvaliacaoDTO{},
+		})
+		return
+	}
+
+	rows, err := a.db.QueryContext(r.Context(), `
+		SELECT id, imovel_id, nome, nota, comentario, created_at
+		FROM avaliacoes
+		WHERE imovel_id = $1::uuid
+		ORDER BY created_at DESC`, imovelID)
+	if err != nil {
+		respondError(w, err)
+		return
+	}
+	defer rows.Close()
+
+	var avaliacoes []AvaliacaoDTO
+	distribuicao := map[int]int{1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+	var somaNotas int
+	for rows.Next() {
+		var av AvaliacaoDTO
+		var createdAt string
+		if err := rows.Scan(&av.ID, &av.ImovelID, &av.Nome, &av.Nota, &av.Comentario, &createdAt); err != nil {
+			respondError(w, err)
+			return
+		}
+		av.Data = createdAt
+		avaliacoes = append(avaliacoes, av)
+		distribuicao[av.Nota]++
+		somaNotas += av.Nota
+	}
+
+	var media float64
+	if len(avaliacoes) > 0 {
+		media = float64(somaNotas) / float64(len(avaliacoes))
+	}
+
+	writeJSON(w, http.StatusOK, AvaliacoesResponse{
+		Media:        media,
+		Total:        len(avaliacoes),
+		Distribuicao: distribuicao,
+		Avaliacoes:   avaliacoes,
+	})
+}
+
+// createAvaliacao cria uma nova avaliação para um imóvel.
+func (a *App) createAvaliacao(w http.ResponseWriter, r *http.Request) {
+	if a.db == nil {
+		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "banco indisponível"})
+		return
+	}
+	imovelID := r.PathValue("id")
+	if !isValidImovelID(imovelID) {
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": "imóvel não encontrado"})
+		return
+	}
+
+	// IDs locais (fallback) não podem ser avaliados no banco
+	if !isUUID(imovelID) {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "avaliações não disponíveis para imóveis de exemplo"})
+		return
+	}
+
+	var input struct {
+		Nome      string `json:"nome"`
+		Nota      int    `json:"nota"`
+		Comentario string `json:"comentario"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "corpo inválido"})
+		return
+	}
+
+	if strings.TrimSpace(input.Nome) == "" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "nome é obrigatório"})
+		return
+	}
+	if input.Nota < 1 || input.Nota > 5 {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "nota deve ser entre 1 e 5"})
+		return
+	}
+
+	var id string
+	err := a.db.QueryRowContext(r.Context(), `
+		INSERT INTO avaliacoes (imovel_id, nome, nota, comentario)
+		VALUES ($1::uuid, $2, $3, $4)
+		RETURNING id`, imovelID, strings.TrimSpace(input.Nome), input.Nota, strings.TrimSpace(input.Comentario)).Scan(&id)
+	if err != nil {
+		respondError(w, err)
+		return
+	}
+
+	writeJSON(w, http.StatusCreated, map[string]string{"id": id, "message": "avaliação registrada"})
+}
+
+// debugPontos retorna todos os pontos da tabela (sem filtros) para debug.
+func (a *App) debugPontos(w http.ResponseWriter, r *http.Request) {
+	if a.db == nil {
+		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "banco indisponível"})
+		return
+	}
+	rows, err := a.db.QueryContext(r.Context(), `
+		SELECT id, nome, imagem_url, ativo, publicado, categoria_id, empresa_id
+		FROM pontos_interesse`)
+	if err != nil {
+		respondError(w, err)
+		return
+	}
+	defer rows.Close()
+
+	type row struct {
+		ID          string `json:"id"`
+		Nome        string `json:"nome"`
+		ImagemURL   string `json:"imagem_url"`
+		Ativo       bool   `json:"ativo"`
+		Publicado   bool   `json:"publicado"`
+		CategoriaID string `json:"categoria_id"`
+		EmpresaID   string `json:"empresa_id"`
+	}
+	var out []row
+	for rows.Next() {
+		var r row
+		if err := rows.Scan(&r.ID, &r.Nome, &r.ImagemURL, &r.Ativo, &r.Publicado, &r.CategoriaID, &r.EmpresaID); err != nil {
+			respondError(w, err)
+			return
+		}
+		out = append(out, r)
+	}
+
+	// Also fetch empresas
+	rows2, err := a.db.QueryContext(r.Context(), `SELECT id, nome_fantasia, whatsapp FROM empresas`)
+	if err != nil {
+		respondError(w, err)
+		return
+	}
+	defer rows2.Close()
+
+	type emp struct {
+		ID       string `json:"id"`
+		Nome     string `json:"nome"`
+		WhatsApp string `json:"whatsapp"`
+	}
+	var empresas []emp
+	for rows2.Next() {
+		var e emp
+		rows2.Scan(&e.ID, &e.Nome, &e.WhatsApp)
+		empresas = append(empresas, e)
+	}
+
+	// Fetch categoria
+	rows3, err := a.db.QueryContext(r.Context(), `SELECT id, nome, ativo FROM categorias_ponto_interesse WHERE id = 'a8304a08-4bd3-45bd-8760-2e20d1662432'`)
+	if err != nil {
+		respondError(w, err)
+		return
+	}
+	defer rows3.Close()
+
+	type cat struct {
+		ID   string `json:"id"`
+		Nome string `json:"nome"`
+		Ativo bool  `json:"ativo"`
+	}
+	var cats []cat
+	for rows3.Next() {
+		var c cat
+		rows3.Scan(&c.ID, &c.Nome, &c.Ativo)
+		cats = append(cats, c)
+	}
+
+	writeJSON(w, http.StatusOK, map[string]any{
+		"pontos":    out,
+		"empresas":  empresas,
+		"categoria": cats,
+	})
 }

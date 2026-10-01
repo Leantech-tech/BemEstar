@@ -1,10 +1,7 @@
 import { SITE_CONFIG } from './config.js';
 import { APARTMENTS as FALLBACK_APARTMENTS } from './apartments.js';
 import { openApartmentDetail } from './detail.js';
-import { renderBeaches } from './beaches.js';
-import { renderWaterfalls } from './waterfalls.js';
-import { renderAttractions } from './attractions.js';
-import { renderNightlife } from './nightlife.js';
+import { loadPoints, renderPoints } from './points.js';
 import {
   ICONS,
   amenityIcon,
@@ -12,6 +9,7 @@ import {
   plural,
   buildWhatsAppLink,
   guardImage,
+  linkedWhatsApp,
 } from './utils.js';
 
 /* ============================================================
@@ -57,16 +55,6 @@ function injectIcons() {
 const API_IMOVEIS_URL = '/api/imoveis';
 const API_EMPRESA_URL = '/api/empresa';
 let APARTMENTS = FALLBACK_APARTMENTS;
-
-/**
- * Extrai o WhatsApp da empresa do final da URL.
- * Ex.: "site.com/12997353792/" -> "12997353792"; sem vínculo -> null.
- */
-function linkedWhatsApp() {
-  const segment = window.location.pathname.split('/').filter(Boolean).pop() ?? '';
-  const digits = segment.replace(/\D/g, '');
-  return /^\d{10,15}$/.test(digits) ? digits : null;
-}
 
 async function loadApartments() {
   const whatsapp = linkedWhatsApp();
@@ -352,10 +340,7 @@ function init() {
   bindConfig();
   injectIcons();
   renderApartments();
-  renderBeaches();
-  renderWaterfalls();
-  renderAttractions();
-  renderNightlife();
+  renderPoints();
   initNavigation();
   initReveals();
   initHeroTitle();
@@ -371,6 +356,6 @@ if (document.readyState === 'loading') {
 }
 
 async function start() {
-  await Promise.all([loadApartments(), loadCompany()]);
+  await Promise.all([loadApartments(), loadCompany(), loadPoints()]);
   init();
 }

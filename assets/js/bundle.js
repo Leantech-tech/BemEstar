@@ -217,8 +217,43 @@
     moon: svg('<path d="M20 13.2A8.2 8.2 0 0 1 10.8 4 8.2 8.2 0 1 0 20 13.2z"/>'),
     flame: svg('<path d="M12 3s5 4.6 5 9.1a5 5 0 0 1-10 0c0-1.9 1-3.4 2-4.9.5 1.4 1.5 2 2.5 2.1C11.3 7 11.6 5 12 3z"/>'),
     info: svg('<circle cx="12" cy="12" r="9"/><path d="M12 11.2V16"/><path d="M12 7.8h.01"/>'),
-    compass: svg('<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5 13 13l-4.5 2.5L11 11l4.5-2.5z"/>')
+    compass: svg('<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5 13 13l-4.5 2.5L11 11l4.5-2.5z"/>'),
+    /* Categorias de pontos de interesse */
+    restaurant: svg('<path d="M7 3v7a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V3"/><path d="M9 3v18"/><path d="M17 3c-1.7 0-3 1.8-3 4v4h3v10"/><path d="M17 3v8"/>'),
+    cart: svg('<circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/><path d="M3 4h2l2.6 11.2a1.6 1.6 0 0 0 1.6 1.3h7.9a1.6 1.6 0 0 0 1.6-1.3L20.5 8H6"/>'),
+    beach: svg('<path d="M12 3a8.5 8.5 0 0 0-8.5 8.5h17A8.5 8.5 0 0 0 12 3z"/><path d="M12 3c-2.2 2.3-2.2 6.2 0 8.5"/><path d="M12 3c2.2 2.3 2.2 6.2 0 8.5"/><path d="M12 11.5 13.5 18"/><path d="M6 21c2-1.6 4-1.6 6 0s4 1.6 6 0"/>'),
+    waterfall: svg('<path d="M4 4c0 4 1.6 4 1.6 8S4 16 4 20"/><path d="M9.6 4c0 4 1.6 4 1.6 8s-1.6 4-1.6 8"/><path d="M15.2 4c0 4 1.6 4 1.6 8s-1.6 4-1.6 8"/><path d="M20.8 4c0 4 1.6 4 1.6 8s-1.6 4-1.6 8" transform="translate(-4.4 0)"/>'),
+    pharmacy: svg('<rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8"/><path d="M8 12h8"/>'),
+    fuel: svg('<path d="M5 21V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v15"/><path d="M3.5 21h13"/><path d="M15 10h2.2a1.8 1.8 0 0 1 1.8 1.8v5.4a1.6 1.6 0 0 0 3.2 0V9.6L20 7"/><path d="M7.5 8.5h5"/>'),
+    camera: svg('<path d="M4 8h3l2-2.5h6L17 8h3a1.5 1.5 0 0 1 1.5 1.5V19a1.5 1.5 0 0 1-1.5 1.5H4A1.5 1.5 0 0 1 2.5 19V9.5A1.5 1.5 0 0 1 4 8z"/><circle cx="12" cy="13.5" r="3.4"/>'),
+    store: svg('<path d="M4.5 9.5 6 4h12l1.5 5.5"/><path d="M4.5 9.5h15"/><path d="M5.5 9.5V20h13V9.5"/><path d="M9.5 20v-5.5h5V20"/>'),
+    phone: svg('<path d="M5 4h4l1.5 4.5L8 10a12 12 0 0 0 6 6l1.5-2.5L20 15v4a1.5 1.5 0 0 1-1.6 1.5C10.5 19.9 4.1 13.5 3.5 5.6A1.5 1.5 0 0 1 5 4z"/>'),
+    globe: svg('<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.6 2.5 4 5.6 4 9s-1.4 6.5-4 9c-2.6-2.5-4-5.6-4-9s1.4-6.5 4-9z"/>')
   };
+  function linkedWhatsApp() {
+    const segment = window.location.pathname.split("/").filter(Boolean).pop() ?? "";
+    const digits = segment.replace(/\D/g, "");
+    return /^\d{10,15}$/.test(digits) ? digits : null;
+  }
+  function categoryIcon(key) {
+    const t = String(key || "").toLowerCase();
+    if (/praia|beach/.test(t)) return ICONS.beach;
+    if (/cachoeira|waterfall|queda/.test(t)) return ICONS.waterfall;
+    if (/restaurante|restaurant|food|lanche|pizzaria|hamburgueria/.test(t)) return ICONS.restaurant;
+    if (/mercado|shopping_cart|supermercado|compra/.test(t)) return ICONS.cart;
+    if (/farmacia|farmácia|pharmacy|drugstore/.test(t)) return ICONS.pharmacy;
+    if (/hospital|clinica|clínica|saude|saúde|local_hospital/.test(t)) return ICONS.pharmacy;
+    if (/posto|gas|combust/.test(t)) return ICONS.fuel;
+    if (/bar|local_bar|bebida|drink/.test(t)) return ICONS.cocktail;
+    if (/cafe|café|cafeteria|local_cafe/.test(t)) return ICONS.mug;
+    if (/loja|store|boutique/.test(t)) return ICONS.store;
+    if (/passeio|tour|trilha|atracao|atração|turismo/.test(t)) return ICONS.compass;
+    if (/foto|mirante|camera|photo/.test(t)) return ICONS.camera;
+    if (/noite|balada|noturno|show/.test(t)) return ICONS.moon;
+    if (/parque|park|divers/.test(t)) return ICONS.ferris;
+    if (/evento|teatro|cultura|arte/.test(t)) return ICONS.ticket;
+    return ICONS.pin;
+  }
   function amenityIcon(label) {
     const t = label.toLowerCase();
     if (/wi-?fi|internet/.test(t)) return ICONS.wifi;
@@ -654,6 +689,193 @@
     };
   }
 
+  // assets/js/reviews.js
+  var starFilled = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`;
+  var starEmpty = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`;
+  function starsHTML(nota, max = 5, interactive = false, name = "rating") {
+    const arr = [];
+    for (let i = 1; i <= max; i++) {
+      const filled = i <= nota;
+      arr.push(`
+      <button type="button" class="star-btn ${filled ? "filled" : ""}" data-value="${i}" ${interactive ? "" : "disabled"} aria-label="${i} estrela${i > 1 ? "s" : ""}">
+        ${filled ? starFilled : starEmpty}
+      </button>
+    `);
+    }
+    return `<div class="stars${interactive ? " interactive" : ""}" data-stars="${name}">${arr.join("")}</div>`;
+  }
+  function formatDateBR(iso) {
+    try {
+      const d = new Date(iso);
+      return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
+    } catch {
+      return iso;
+    }
+  }
+  function avaliacaoItemHTML(av) {
+    return `
+    <article class="review-item">
+      <header class="review-header">
+        <strong>${av.nome}</strong>
+        <time>${formatDateBR(av.data)}</time>
+      </header>
+      <div class="review-stars">${starsHTML(av.nota)}</div>
+      ${av.comentario ? `<p class="review-text">${av.comentario}</p>` : ""}
+    </article>
+  `;
+  }
+  function distribuicaoHTML(dist, total) {
+    const bars = [5, 4, 3, 2, 1].map((n) => {
+      const count = dist[n] || 0;
+      const pct = total ? count / total * 100 : 0;
+      return `
+      <div class="dist-row">
+        <span class="dist-label">${n} <span class="star-icon">${starFilled}</span></span>
+        <div class="dist-bar"><span style="width:${pct}%"></span></div>
+        <span class="dist-count">${count}</span>
+      </div>
+    `;
+    }).join("");
+    return `<div class="review-distribuicao">${bars}</div>`;
+  }
+  function openReviewsModal(imovelId, imovelName, onClose) {
+    let currentData = null;
+    async function loadReviews() {
+      try {
+        const res = await fetch(`/api/imoveis/${imovelId}/avaliacoes`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        currentData = await res.json();
+        render();
+      } catch (e) {
+        console.error("Erro ao carregar avalia\xE7\xF5es:", e);
+        document.getElementById("reviewsList").innerHTML = '<p class="review-error">Erro ao carregar avalia\xE7\xF5es.</p>';
+      }
+    }
+    function render() {
+      const { media, total, distribuicao, avaliacoes } = currentData || { media: 0, total: 0, distribuicao: {}, avaliacoes: [] };
+      document.getElementById("reviewsSummary").innerHTML = `
+      <div class="review-summary">
+        <div class="review-score">
+          <span class="score-value">${media.toFixed(1)}</span>
+          <div class="score-stars">${starsHTML(Math.round(media))}</div>
+          <span class="score-total">${total} avalia\xE7\xE3o${total !== 1 ? "\xF5es" : ""}</span>
+        </div>
+        ${distribuicaoHTML(distribuicao, total)}
+      </div>
+    `;
+      const list = document.getElementById("reviewsList");
+      if (avaliacoes && avaliacoes.length) {
+        list.innerHTML = avaliacoes.map(avaliacaoItemHTML).join("");
+      } else {
+        list.innerHTML = '<p class="review-empty">Nenhuma avalia\xE7\xE3o ainda. Seja o primeiro a avaliar!</p>';
+      }
+    }
+    let selectedRating = 0;
+    const html = `
+    <div class="reviews-modal">
+      <header class="reviews-header">
+        <h3>Avalia\xE7\xF5es <span class="reviews-property">${imovelName}</span></h3>
+      </header>
+      <div class="reviews-body">
+        <section id="reviewsSummary" class="reviews-summary-section"></section>
+        <section class="reviews-form-section">
+          <h4>Deixe sua avalia\xE7\xE3o</h4>
+          <form id="reviewForm" class="review-form">
+            <div class="form-group">
+              <label>Sua nota</label>
+              <div class="stars interactive" data-stars="new" id="newRatingStars">
+                ${[1, 2, 3, 4, 5].map((i) => `<button type="button" class="star-btn" data-value="${i}" aria-label="${i} estrela${i > 1 ? "s" : ""}">${starEmpty}</button>`).join("")}
+              </div>
+              <input type="hidden" name="nota" id="notaInput" required>
+            </div>
+            <div class="form-group">
+              <label for="nomeInput">Seu nome <span class="required">*</span></label>
+              <input type="text" id="nomeInput" name="nome" required maxlength="100" placeholder="Como voc\xEA quer ser identificado">
+            </div>
+            <div class="form-group">
+              <label for="comentarioInput">Seu coment\xE1rio (opcional)</label>
+              <textarea id="comentarioInput" name="comentario" rows="3" maxlength="500" placeholder="Conte sua experi\xEAncia..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Enviar avalia\xE7\xE3o</button>
+          </form>
+        </section>
+        <section class="reviews-list-section">
+          <h4>O que dizem os h\xF3spedes</h4>
+          <div id="reviewsList" class="reviews-list"></div>
+        </section>
+      </div>
+    </div>
+  `;
+    const modal = openModal(html, { variant: "modal-reviews", size: "large" });
+    const originalClose = modal.close;
+    const customClose = () => {
+      if (onClose) onClose();
+      originalClose();
+    };
+    modal.close = customClose;
+    const closeBtn = modal.sheet.querySelector(".modal-close");
+    if (closeBtn) {
+      closeBtn.replaceWith(closeBtn.cloneNode(true));
+      modal.sheet.querySelector(".modal-close").addEventListener("click", customClose);
+    }
+    const starsContainer = modal.body.querySelector("#newRatingStars");
+    starsContainer.querySelectorAll(".star-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        selectedRating = parseInt(btn.dataset.value, 10);
+        modal.body.querySelector("#notaInput").value = selectedRating;
+        starsContainer.querySelectorAll(".star-btn").forEach((b, i) => {
+          b.classList.toggle("filled", i < selectedRating);
+          b.innerHTML = i < selectedRating ? starFilled : starEmpty;
+        });
+      });
+      btn.addEventListener("mouseenter", () => {
+        const val = parseInt(btn.dataset.value, 10);
+        starsContainer.querySelectorAll(".star-btn").forEach((b, i) => {
+          b.innerHTML = i < val ? starFilled : starEmpty;
+        });
+      });
+    });
+    starsContainer.addEventListener("mouseleave", () => {
+      starsContainer.querySelectorAll(".star-btn").forEach((b, i) => {
+        b.classList.toggle("filled", i < selectedRating);
+        b.innerHTML = i < selectedRating ? starFilled : starEmpty;
+      });
+    });
+    modal.body.querySelector("#reviewForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const nome = form.nome.value.trim();
+      const nota = parseInt(form.nota.value, 10);
+      const comentario = form.comentario.value.trim();
+      if (!nome || !nota) return;
+      const btn = form.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      btn.textContent = "Enviando...";
+      try {
+        const res = await fetch(`/api/imoveis/${imovelId}/avaliacoes`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nome, nota, comentario })
+        });
+        if (!res.ok) throw new Error("Erro ao enviar");
+        form.reset();
+        selectedRating = 0;
+        starsContainer.querySelectorAll(".star-btn").forEach((b, i) => {
+          b.classList.remove("filled");
+          b.innerHTML = starEmpty;
+        });
+        modal.body.querySelector("#notaInput").value = "";
+        await loadReviews();
+      } catch (err) {
+        alert("Erro ao enviar avalia\xE7\xE3o: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Enviar avalia\xE7\xE3o";
+      }
+    });
+    loadReviews();
+  }
+
   // assets/js/detail.js
   var brl = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
   function esc(text) {
@@ -778,7 +1000,10 @@ Lembrando que amanh\xE3 cedo ir\xE1 ligar automaticamente, para filtrar a \xE1gu
           <span class="detail-price-label">Investimento</span>
           <strong>${apartment.price ? esc(apartment.price) : "Sob consulta"}</strong>
         </div>
-        ${apartment.available ? `<button type="button" class="btn btn-primary btn-lg" data-action="rent">Alugar ${ICONS.arrowRight}</button>` : '<p class="detail-unavailable">Este im\xF3vel n\xE3o est\xE1 dispon\xEDvel no momento. Fale conosco para conhecer outras op\xE7\xF5es.</p>'}
+        <div class="detail-actions">
+          ${apartment.available ? `<button type="button" class="btn btn-primary btn-lg" data-action="rent">Alugar ${ICONS.arrowRight}</button>` : '<p class="detail-unavailable">Este im\xF3vel n\xE3o est\xE1 dispon\xEDvel no momento. Fale conosco para conhecer outras op\xE7\xF5es.</p>'}
+          <button type="button" class="btn btn-secondary" data-action="reviews">Avaliar ${ICONS.star || ""}</button>
+        </div>
       </div>
     </article>`;
     const modal = openModal(html, { variant: "modal-detail" });
@@ -789,6 +1014,13 @@ Lembrando que amanh\xE3 cedo ir\xE1 ligar automaticamente, para filtrar a \xE1gu
       modal.close();
       setTimeout(() => openBooking(apartment), 240);
     });
+    const detailOverlay = modal.sheet.closest(".modal-overlay");
+    modal.body.querySelector('[data-action="reviews"]')?.addEventListener("click", () => {
+      if (detailOverlay) detailOverlay.style.display = "none";
+      openReviewsModal(apartment.id, apartment.name, () => {
+        if (detailOverlay) detailOverlay.style.display = "flex";
+      });
+    });
     const originalClose = modal.close;
     modal.close = () => {
       gallery.destroy();
@@ -796,590 +1028,440 @@ Lembrando que amanh\xE3 cedo ir\xE1 ligar automaticamente, para filtrar a \xE1gu
     };
   }
 
-  // assets/js/place-modal.js
-  function openPlaceModal(place, { note } = {}) {
-    const images = place.images?.length ? place.images : [placeholderImage(place.name)];
+  // assets/js/point-modal.js
+  function formatPhoneDisplay(phone) {
+    const digits = String(phone || "").replace(/\D/g, "");
+    if (digits.length === 11) return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+    if (digits.length === 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+    return phone;
+  }
+  function mapsQuery(point2) {
+    const hasCoords = typeof point2.latitude === "number" && typeof point2.longitude === "number" && (point2.latitude !== 0 || point2.longitude !== 0);
+    if (hasCoords) return `${point2.latitude},${point2.longitude}`;
+    return [point2.address || [point2.name, point2.city, point2.state].filter(Boolean).join(", ")].filter(Boolean).join(", ");
+  }
+  function openPointModal(point2, category) {
+    const image = point2.image || placeholderImage(point2.name);
+    const query = mapsQuery(point2);
+    const embedUrl = `https://www.google.com/maps?q=${encodeURIComponent(query)}&z=16&output=embed`;
+    const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(query)}`;
+    const searchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+    const location = [point2.neighborhood, point2.city].filter(Boolean).join(" \xB7 ");
     const html = `
-    <article class="detail">
-      <div class="detail-gallery" data-gallery-mount></div>
+    <article class="detail poi-detail">
+      <div class="detail-col-left">
+        <figure class="poi-cover">
+          <img src="${image}" alt="${point2.name}" decoding="async" />
+        </figure>
+        ${point2.tags?.length ? `<ul class="poi-tags">${point2.tags.map((t) => `<li>${t}</li>`).join("")}</ul>` : ""}
+      </div>
 
       <div class="detail-info">
         <div class="detail-head">
-          <div>
-            <span class="badge badge-gold">${place.category}</span>
-            <h3>${place.name}</h3>
-            ${place.context ? `<p class="detail-context">${place.context}</p>` : ""}
+          <span class="badge badge-gold">${category ? categoryIcon(category.icon || category.slug) : ""}${category?.name ?? "Ponto de interesse"}</span>
+          <h3>${point2.name}</h3>
+          ${point2.context ? `<p class="detail-context">${point2.context}</p>` : ""}
+          ${location ? `<p class="detail-location">${ICONS.pin}<span>${location}</span></p>` : ""}
+        </div>
+
+        ${point2.description ? `<div class="detail-block"><h4>Sobre</h4><p>${point2.description}</p></div>` : ""}
+
+        <div class="detail-block">
+          <h4>Localiza\xE7\xE3o</h4>
+          ${point2.address ? `<p class="detail-address">${point2.address}</p>` : ""}
+          <div class="poi-map">
+            <iframe
+              src="${embedUrl}"
+              title="Localiza\xE7\xE3o de ${point2.name} no Google Maps"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              allowfullscreen></iframe>
+          </div>
+          <div class="poi-map-actions">
+            <a class="btn btn-primary btn-sm" href="${directionsUrl}" target="_blank" rel="noopener">
+              ${ICONS.compass} Como chegar
+            </a>
+            <a class="btn btn-outline btn-sm" href="${searchUrl}" target="_blank" rel="noopener">
+              ${ICONS.pin} Abrir no Google Maps
+            </a>
           </div>
         </div>
 
-        <div class="detail-block">
-          <h4>Sobre o lugar</h4>
-          <p>${place.description}</p>
-        </div>
-
-        <ul class="detail-meta attr-meta">
-          ${place.tags.map((t) => `<li>${ICONS.compass}<span>${t}</span></li>`).join("")}
-        </ul>
-
-        ${note ? `<p class="attr-note">${ICONS.info}<span>${note}</span></p>` : ""}
+        ${point2.phone || point2.site ? `<div class="detail-block">
+          <h4>Contato</h4>
+          <ul class="poi-contact">
+            ${point2.phone ? `<li><a href="tel:+55${String(point2.phone).replace(/\D/g, "")}">${ICONS.phone}<span>${formatPhoneDisplay(point2.phone)}</span></a></li>` : ""}
+            ${point2.site ? `<li><a href="${point2.site}" target="_blank" rel="noopener">${ICONS.globe}<span>Visitar site</span></a></li>` : ""}
+          </ul>
+        </div>` : ""}
       </div>
     </article>`;
     const modal = openModal(html, { variant: "modal-detail" });
-    const gallery = createGallery(modal.body.querySelector("[data-gallery-mount]"), images, {
-      alt: `Fotos de ${place.name}`,
-      ratio: place.ratio
-    });
-    const originalClose = modal.close;
-    modal.close = () => {
-      gallery.destroy();
-      originalClose();
-    };
+    modal.body.querySelectorAll("img").forEach(guardImage);
   }
 
-  // assets/js/place-tiles.js
-  function renderPlaceTiles(grid, places, { note } = {}) {
-    if (!grid) return;
-    const rows = [];
-    for (let i = 0; i < places.length; i += 2) rows.push(places.slice(i, i + 2));
-    grid.innerHTML = rows.map(
-      (row) => `
-    <div class="tile-row${row.length === 1 ? " is-single" : ""}">
-      ${row.map(
-        (place, i) => `
-      <button
-        type="button"
-        class="tile reveal"
-        style="--r: ${place.ratio}"
-        data-delay="${i * 110}"
-        data-place="${place.id}"
-        aria-label="Ver detalhes: ${place.name}"
-      >
+  // assets/js/points-fallback.js
+  var IMG_PRAIAS = "/assets/imagens/nossas praias";
+  var IMG_CACHOEIRAS = "/assets/imagens/nossas cachoeiras";
+  var IMG_PONTOS = "/assets/imagens/pontos tur\xEDsticos";
+  var IMG_NOITE = "/assets/imagens/o que fazer a noite";
+  var FALLBACK_CATEGORIES = [
+    { id: "praia", name: "Praias", slug: "praia", icon: "beach_access", order: 10 },
+    { id: "cachoeira", name: "Cachoeiras", slug: "cachoeira", icon: "waterfall", order: 20 },
+    { id: "passeio", name: "Passeios", slug: "passeio", icon: "tour", order: 30 },
+    { id: "vida-noturna", name: "Vida noturna", slug: "vida-noturna", icon: "nightlife", order: 40 }
+  ];
+  var point = (category, id, name, context, description, image, tags = [], address = "") => ({
+    id,
+    name,
+    context,
+    description,
+    address,
+    neighborhood: "",
+    city: "Ubatuba",
+    state: "SP",
+    latitude: null,
+    longitude: null,
+    phone: "",
+    site: "",
+    image,
+    featured: false,
+    categoryId: category,
+    tags
+  });
+  var FALLBACK_POINTS = [
+    /* ---------- Praias ---------- */
+    point(
+      "praia",
+      "enseada",
+      "Praia da Enseada",
+      "A praia dos nossos apartamentos",
+      "Mar geralmente calmo e uma longa faixa de areia \u2014 perfeita para caminhadas no fim de tarde e banho tranquilo com as crian\xE7as. \xC9 aqui que ficam nossos apartamentos: d\xE1 para ir e voltar a p\xE9 quantas vezes quiser.",
+      `${IMG_PRAIAS}/Enseada.png`,
+      ["\xC1guas calmas", "Ao lado dos apartamentos"],
+      "Praia da Enseada, Ubatuba \u2014 SP"
+    ),
+    point(
+      "praia",
+      "itamambuca",
+      "Praia de Itamambuca",
+      "Point de surf cercado de mata",
+      "Uma das praias mais famosas do litoral norte: ondas constantes que recebem campeonatos de surf, areia clara e o Rio Itamambuca desaguando no cantinho. Mesmo sem prancha, vale pela paisagem.",
+      `${IMG_PRAIAS}/Itamambuca.png`,
+      ["Surf", "Natureza preservada"]
+    ),
+    point(
+      "praia",
+      "ubatumirim",
+      "Ubatumirim",
+      "Sossego no encontro do rio com o mar",
+      "Mar calmo, areia clara e pouco movimento: Ubatumirim \xE9 ref\xFAgio para quem quer sil\xEAncio. Em uma das pontas, o rio encontra o mar formando piscinas rasas \u2014 um charme a mais para as crian\xE7as.",
+      `${IMG_PRAIAS}/Ubatumirim.png`,
+      ["\xC1guas calmas", "Pouco movimento"]
+    ),
+    point(
+      "praia",
+      "praia-grande",
+      "Praia Grande",
+      "Movimento, quiosques e passeios",
+      "Uma das praias mais animadas da cidade: orla com quiosques, sa\xEDda de passeios de barco e mar bom para banho. Ideal para quem gosta de estrutura completa p\xE9 na areia.",
+      `${IMG_PRAIAS}/Praia Grande.png`,
+      ["Quiosques", "Passeios de barco"]
+    ),
+    point(
+      "praia",
+      "toninhas",
+      "Praia das Toninhas",
+      "Enseada protegida, ideal para fam\xEDlias",
+      "O formato de enseada protege o banho de mar em boa parte dos dias. Os cantinhos s\xE3o ainda mais tranquilos, e o trecho central atrai quem pratica caiaque e stand-up paddle.",
+      `${IMG_PRAIAS}/Toninhas.png`,
+      ["Fam\xEDlias", "Caiaque e SUP"]
+    ),
+    point(
+      "praia",
+      "praia-do-portugues",
+      "Praia do Portugu\xEAs",
+      "Cantinho de \xE1guas claras",
+      "Pequena, charmosa e encostada na mata, tem mar calmo e \xE1gua transparente na maior parte do ano. Uma parada perfeita para relaxar longe do movimento.",
+      `${IMG_PRAIAS}/Praia do Portugu\xEAs.png`,
+      ["\xC1guas claras", "Sossego"]
+    ),
+    /* ---------- Cachoeiras ---------- */
+    point(
+      "cachoeira",
+      "dos-macacos",
+      "Cachoeira dos Macacos",
+      "Po\xE7o amplo em meio \xE0 mata",
+      "A queda desce por degraus de rocha at\xE9 um po\xE7o grande e profundo, cercado por Mata Atl\xE2ntica preservada. O nome \xE9 uma homenagem aos macacos-prego que costumam aparecer na copa das \xE1rvores ao redor.",
+      `${IMG_CACHOEIRAS}/Dos Macacos.webp`,
+      ["Piscina natural", "Mata preservada"]
+    ),
+    point(
+      "cachoeira",
+      "agua-branca",
+      "Cachoeira da \xC1gua Branca",
+      "Sequ\xEAncia de quedas e po\xE7os",
+      "Uma sequ\xEAncia de pequenas quedas que descem pela pedra formando po\xE7os de \xE1gua cristalina. D\xE1 para escolher entre banho de queda, piscinas rasas para as crian\xE7as e a sombra generosa da mata.",
+      `${IMG_CACHOEIRAS}/\xC1gua Branca.webp`,
+      ["Po\xE7os rasos", "Ideal para fam\xEDlias"]
+    ),
+    point(
+      "cachoeira",
+      "escada",
+      "Cachoeira da Escada",
+      "Degraus naturais e escorregadores",
+      "Como o nome sugere, a \xE1gua desce por degraus sucessivos, formando escorregadores naturais e piscinas entre um n\xEDvel e outro. Divers\xE3o garantida \u2014 com a dose certa de frescor.",
+      `${IMG_CACHOEIRAS}/Escada.webp`,
+      ["Escorregador natural", "Banho de queda"]
+    ),
+    point(
+      "cachoeira",
+      "prumirim",
+      "Cachoeira do Prumirim",
+      "Pertinho da Praia do Prumirim",
+      "A poucos minutos da Praia do Prumirim, combina trilha curta na mata com po\xE7os esverdeados de \xE1gua doce. O programa perfeito \xE9 unir os dois: manh\xE3 de cachoeira, tarde de praia.",
+      `${IMG_CACHOEIRAS}/Prumirim.webp`,
+      ["Trilha curta", "Combina com a praia"]
+    ),
+    point(
+      "cachoeira",
+      "renata",
+      "Cachoeira da Renata",
+      "Um dos po\xE7os mais bonitos da regi\xE3o",
+      "Po\xE7o amplo de \xE1guas esverdeadas com faixa de areia na borda \u2014 cen\xE1rio de piscina natural de revista. Nos dias de sol, a \xE1gua ganha tons que v\xE3o do verde ao azul-turquesa.",
+      `${IMG_CACHOEIRAS}/Renata.webp`,
+      ["Piscina natural", "\xC1guas esverdeadas"]
+    ),
+    point(
+      "cachoeira",
+      "tombador",
+      "Cachoeira do Tombador",
+      "Queda imponente, po\xE7o profundo",
+      "Queda alta e volumosa que despenca sobre um po\xE7o profundo \u2014 o cl\xE1ssico cart\xE3o-postal de cachoeira. O banho de queda aqui \xE9 dos mais revigorantes.",
+      `${IMG_CACHOEIRAS}/Tombador.webp`,
+      ["Banho de queda", "Po\xE7o profundo"]
+    ),
+    point(
+      "cachoeira",
+      "veu-da-noiva",
+      "Cachoeira V\xE9u da Noiva",
+      "Cortina d\u2019\xE1gua fotog\xEAnica",
+      "A \xE1gua desce em l\xE2mina ampla sobre a rocha, formando uma cortina branca que lembra um v\xE9u \u2014 da\xED o nome. Uma das paisagens mais fotog\xEAnicas entre as cachoeiras da regi\xE3o.",
+      `${IMG_CACHOEIRAS}/V\xE9u da Noiva.webp`,
+      ["Fotog\xEAnica", "Cortina d\u2019\xE1gua"]
+    ),
+    /* ---------- Passeios ---------- */
+    point(
+      "passeio",
+      "ubatuba-mall",
+      "Ubatuba Mall",
+      "Compras e alimenta\xE7\xE3o na cidade",
+      "Centro de compras no cora\xE7\xE3o de Ubatuba, com lojas e pra\xE7a de alimenta\xE7\xE3o. Uma boa pedida para os dias de chuva ou para relaxar entre um passeio e outro.",
+      `${IMG_PONTOS}/Ubatuba-Mall-Aeroporto.webp`,
+      ["Compras", "Gastronomia"]
+    ),
+    point(
+      "passeio",
+      "aquario",
+      "Aqu\xE1rio de Ubatuba",
+      "Fauna marinha do litoral norte",
+      "Aqu\xE1rio municipal dedicado \xE0 fauna marinha da regi\xE3o. Um passeio educativo e divertido, perfeito para crian\xE7as e adultos conhecerem de perto as esp\xE9cies que vivem no litoral.",
+      `${IMG_PONTOS}/Aquario-de-Ubatuba-2-2.webp`,
+      ["Fam\xEDlias", "Fauna marinha"]
+    ),
+    point(
+      "passeio",
+      "projeto-tamar",
+      "Projeto Tamar",
+      "Conserva\xE7\xE3o de tartarugas marinhas",
+      "Base do Projeto Tamar em Ubatuba, dedicada \xE0 prote\xE7\xE3o das tartarugas marinhas. Vale a visita para conhecer o trabalho de conserva\xE7\xE3o \u2014 e, em \xE9pocas adequadas, acompanhar atividades como a soltura de filhotes.",
+      `${IMG_PONTOS}/fundacao_projeto_tamar_ubatuba07.webp`,
+      ["Conserva\xE7\xE3o", "Ao ar livre"]
+    ),
+    point(
+      "passeio",
+      "sobradao-do-porto",
+      "Sobrad\xE3o do Porto",
+      "Hist\xF3ria e cultura \xE0 beira-mar",
+      "Casar\xE3o hist\xF3rico na orla do bairro do Porto, um dos cart\xF5es-postais da cidade. O im\xF3vel abriga atividades culturais e \xE9 parada obrigat\xF3ria para quem gosta de hist\xF3ria \u2014 e de uma boa foto.",
+      `${IMG_PONTOS}/Casarao-de-Ubatuba-2.webp`,
+      ["Patrim\xF4nio", "Cultura"]
+    ),
+    point(
+      "passeio",
+      "ilhas",
+      "Ilhas Paradis\xEDacas",
+      "Passeios de barco pelo litoral",
+      "Passeios de escuna e barcos menores levam a ilhas e praias de acesso apenas pelo mar, como a regi\xE3o da Ilha Anchieta e do Prumirim \u2014 \xE1guas claras, paisagens preservadas e paradas para banho.",
+      `${IMG_PONTOS}/Ilhas.png`,
+      ["Passeio de barco", "Natureza"]
+    ),
+    point(
+      "passeio",
+      "trilha-7-praias",
+      "Trilha das 7 Praias",
+      "Natureza e praias selvagens",
+      "Uma das trilhas costeiras mais famosas do litoral paulista: cerca de 7 km ligando a Praia da Lagoinha ao Saco da Ribeira, passando por praias desertas, morros e mirantes naturais.",
+      `${IMG_PONTOS}/Trilha 7 praias.webp`,
+      ["Trilha", "Praias selvagens"]
+    ),
+    /* ---------- Vida noturna ---------- */
+    point(
+      "vida-noturna",
+      "rua-guarani",
+      "Rua Guarani",
+      "O point da noite ubatubense",
+      "O principal ponto de encontro da noite ubatubense: bares, restaurantes e food trucks concentrados em uma \xFAnica rua \u2014 d\xE1 para percorrer tudo a p\xE9.",
+      `${IMG_NOITE}/Rua Guarani.webp`,
+      ["Bares", "Food trucks"],
+      "Rua Guarani, Centro \u2014 Ubatuba/SP"
+    ),
+    point(
+      "vida-noturna",
+      "baladas-shows",
+      "Baladas e Shows",
+      "M\xFAsica e dan\xE7a na temporada",
+      "Para quem busca m\xFAsica e dan\xE7a, Ubatuba tem op\xE7\xF5es de casa noturna a beach club \u2014 com atra\xE7\xF5es variadas conforme a programa\xE7\xE3o da temporada.",
+      `${IMG_NOITE}/Baladas e shows.webp`,
+      ["Casas noturnas", "Beach clubs"]
+    ),
+    point(
+      "vida-noturna",
+      "teatro-artes",
+      "Teatro e Artes",
+      "Cultura para uma noite tranquila",
+      "Op\xE7\xF5es culturais para uma noite mais tranquila \u2014 entre pe\xE7as, apresenta\xE7\xF5es e o artesanato local.",
+      `${IMG_NOITE}/Teatro e Artes.webp`,
+      ["Pe\xE7as", "Artesanato"],
+      "Pra\xE7a Exalta\xE7\xE3o \xE0 Santa Cruz, 22 - Centro, Ubatuba - SP"
+    ),
+    point(
+      "vida-noturna",
+      "shopping",
+      "Shopping",
+      "Compras e lazer \xE0 noite",
+      "Para um programa tranquilo, a cidade tem shoppings e galerias com lojas, alimenta\xE7\xE3o e \xE1reas de lazer \u2014 perfeito para a noite ou para dias de chuva.",
+      `${IMG_NOITE}/Shopping.webp`,
+      ["Shoppings", "Galerias"],
+      "Rua Guarani, 374 - Itagu\xE1, Ubatuba - SP"
+    ),
+    point(
+      "vida-noturna",
+      "parque-diversao",
+      "Parque de Divers\xE3o",
+      "Divers\xE3o para toda a fam\xEDlia",
+      "Divers\xE3o para toda a fam\xEDlia at\xE9 a noite cair: atra\xE7\xF5es e espa\xE7os de lazer que garantem o programa das crian\xE7as \u2014 e de quem \xE9 crian\xE7a por dentro.",
+      `${IMG_NOITE}/Parque de divers\xE3o.webp`,
+      ["Fam\xEDlia", "Crian\xE7as"],
+      "Av. Iperoig - Centro, Ubatuba - SP"
+    )
+  ];
+
+  // assets/js/points.js
+  var API_PONTOS_URL = "/api/pontos-interesse";
+  var categories = FALLBACK_CATEGORIES;
+  var points = FALLBACK_POINTS;
+  async function loadPoints() {
+    const whatsapp = linkedWhatsApp();
+    if (!whatsapp || typeof fetch === "undefined") return;
+    try {
+      const response = await fetch(`${API_PONTOS_URL}?whatsapp=${whatsapp}`);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      if (!data || !Array.isArray(data.categories) || !Array.isArray(data.points)) {
+        throw new Error("formato inesperado");
+      }
+      categories = data.categories;
+      points = data.points;
+    } catch {
+    }
+  }
+  var categoryOf = (point2) => categories.find((c) => c.id === point2.categoryId) ?? null;
+  function pointCard(point2) {
+    const category = categoryOf(point2);
+    const location = point2.address || [point2.neighborhood, point2.city].filter(Boolean).join(" \xB7 ");
+    return `
+    <article class="poi-card" data-point="${point2.id}">
+      <button type="button" class="poi-media" data-action="open" aria-label="Ver detalhes: ${point2.name}">
         <img
-          src="${place.images[0] ?? placeholderImage(place.name)}"
-          alt="${place.name}, Ubatuba"
+          src="${point2.image || placeholderImage(point2.name)}"
+          alt="${point2.name}"
           loading="lazy"
           decoding="async"
         />
-        <span class="tile-arrow" aria-hidden="true">${ICONS.arrowRight}</span>
-      </button>`
-      ).join("")}
-    </div>`
-    ).join("");
-    grid.querySelectorAll("img").forEach(guardImage);
-    grid.querySelectorAll("[data-place]").forEach((el) => {
-      el.addEventListener("click", () => {
-        const place = places.find((p) => p.id === el.dataset.place);
-        if (place) openPlaceModal(place, { note });
-      });
-    });
-  }
-
-  // assets/js/beaches.js
-  var IMG2 = "/assets/imagens/nossas praias";
-  var NOTE = "As condi\xE7\xF5es do mar variam com o vento e a mar\xE9. Em dias de ressaca, prefira as praias mais protegidas e siga sempre a orienta\xE7\xE3o dos guarda-vidas.";
-  var BEACHES = [
-    {
-      id: "enseada",
-      name: "Praia da Enseada",
-      context: "A praia dos nossos apartamentos",
-      category: "Praia",
-      location: "Praia da Enseada, Ubatuba \u2014 SP",
-      description: "Mar geralmente calmo e uma longa faixa de areia \u2014 perfeita para caminhadas no fim de tarde e banho tranquilo com as crian\xE7as. \xC9 aqui que ficam nossos apartamentos: d\xE1 para ir e voltar a p\xE9 quantas vezes quiser.",
-      tags: ["\xC1guas calmas", "Ao lado dos apartamentos"],
-      ratio: 1.275,
-      // 1448 × 1136
-      images: [`${IMG2}/Enseada.png`]
-    },
-    {
-      id: "itamambuca",
-      name: "Praia de Itamambuca",
-      context: "Point de surf cercado de mata",
-      category: "Praia",
-      description: "Uma das praias mais famosas do litoral norte: ondas constantes que recebem campeonatos de surf, areia clara e o Rio Itamambuca desaguando no cantinho. Mesmo sem prancha, vale pela paisagem.",
-      tags: ["Surf", "Natureza preservada"],
-      ratio: 1.687,
-      // 1672 × 991
-      images: [`${IMG2}/Itamambuca.png`]
-    },
-    {
-      id: "ubatumirim",
-      name: "Ubatumirim",
-      context: "Sossego no encontro do rio com o mar",
-      category: "Praia",
-      description: "Mar calmo, areia clara e pouco movimento: Ubatumirim \xE9 ref\xFAgio para quem quer sil\xEAncio. Em uma das pontas, o rio encontra o mar formando piscinas rasas \u2014 um charme a mais para as crian\xE7as.",
-      tags: ["\xC1guas calmas", "Pouco movimento"],
-      ratio: 1.687,
-      // 1672 × 991
-      images: [`${IMG2}/Ubatumirim.png`]
-    },
-    {
-      id: "praia-grande",
-      name: "Praia Grande",
-      context: "Movimento, quiosques e passeios",
-      category: "Praia",
-      description: "Uma das praias mais animadas da cidade: orla com quiosques, sa\xEDda de passeios de barco e mar bom para banho. Ideal para quem gosta de estrutura completa p\xE9 na areia.",
-      tags: ["Quiosques", "Passeios de barco"],
-      ratio: 1.893,
-      // 1774 × 937
-      images: [`${IMG2}/Praia Grande.png`]
-    },
-    {
-      id: "toninhas",
-      name: "Praia das Toninhas",
-      context: "Enseada protegida, ideal para fam\xEDlias",
-      category: "Praia",
-      description: "O formato de enseada protege o banho de mar em boa parte dos dias. Os cantinhos s\xE3o ainda mais tranquilos, e o trecho central atrai quem pratica caiaque e stand-up paddle.",
-      tags: ["Fam\xEDlias", "Caiaque e SUP"],
-      ratio: 1.687,
-      // 1672 × 991
-      images: [`${IMG2}/Toninhas.png`]
-    },
-    {
-      id: "praia-do-portugues",
-      name: "Praia do Portugu\xEAs",
-      context: "Cantinho de \xE1guas claras",
-      category: "Praia",
-      description: "Pequena, charmosa e encostada na mata, tem mar calmo e \xE1gua transparente na maior parte do ano. Uma parada perfeita para relaxar longe do movimento.",
-      tags: ["\xC1guas claras", "Sossego"],
-      ratio: 1.687,
-      // 1672 × 991
-      images: [`${IMG2}/Praia do Portugu\xEAs.png`]
-    }
-  ];
-  function renderBeaches() {
-    renderPlaceTiles(document.getElementById("beachesGrid"), BEACHES, { note: NOTE });
-  }
-
-  // assets/js/waterfalls.js
-  var IMG3 = "/assets/imagens/nossas cachoeiras";
-  var NOTE2 = "O acesso \xE0s cachoeiras pode incluir trilhas e, em alguns pontos, taxa de conserva\xE7\xE3o local. Evite dias de chuva, use cal\xE7ado fechado e confirme as condi\xE7\xF5es antes da visita.";
-  var WATERFALLS = [
-    {
-      id: "dos-macacos",
-      name: "Cachoeira dos Macacos",
-      context: "Po\xE7o amplo em meio \xE0 mata",
-      category: "Cachoeira",
-      description: "A queda desce por degraus de rocha at\xE9 um po\xE7o grande e profundo, cercado por Mata Atl\xE2ntica preservada. O nome \xE9 uma homenagem aos macacos-prego que costumam aparecer na copa das \xE1rvores ao redor.",
-      tags: ["Piscina natural", "Mata preservada"],
-      ratio: 1,
-      // 1254 × 1254
-      images: [`${IMG3}/Dos Macacos.webp`]
-    },
-    {
-      id: "agua-branca",
-      name: "Cachoeira da \xC1gua Branca",
-      context: "Sequ\xEAncia de quedas e po\xE7os",
-      category: "Cachoeira",
-      description: "Uma sequ\xEAncia de pequenas quedas que descem pela pedra formando po\xE7os de \xE1gua cristalina. D\xE1 para escolher entre banho de queda, piscinas rasas para as crian\xE7as e a sombra generosa da mata.",
-      tags: ["Po\xE7os rasos", "Ideal para fam\xEDlias"],
-      ratio: 1.776,
-      // 1671 × 941
-      images: [`${IMG3}/\xC1gua Branca.webp`]
-    },
-    {
-      id: "escada",
-      name: "Cachoeira da Escada",
-      context: "Degraus naturais e escorregadores",
-      category: "Cachoeira",
-      description: "Como o nome sugere, a \xE1gua desce por degraus sucessivos, formando escorregadores naturais e piscinas entre um n\xEDvel e outro. Divers\xE3o garantida \u2014 com a dose certa de frescor.",
-      tags: ["Escorregador natural", "Banho de queda"],
-      ratio: 1.777,
-      // 1672 × 941
-      images: [`${IMG3}/Escada.webp`]
-    },
-    {
-      id: "prumirim",
-      name: "Cachoeira do Prumirim",
-      context: "Pertinho da Praia do Prumirim",
-      category: "Cachoeira",
-      description: "A poucos minutos da Praia do Prumirim, combina trilha curta na mata com po\xE7os esverdeados de \xE1gua doce. O programa perfeito \xE9 unir os dois: manh\xE3 de cachoeira, tarde de praia.",
-      tags: ["Trilha curta", "Combina com a praia"],
-      ratio: 1.777,
-      // 1672 × 941
-      images: [`${IMG3}/Prumirim.webp`]
-    },
-    {
-      id: "renata",
-      name: "Cachoeira da Renata",
-      context: "Um dos po\xE7os mais bonitos da regi\xE3o",
-      category: "Cachoeira",
-      description: "Po\xE7o amplo de \xE1guas esverdeadas com faixa de areia na borda \u2014 cen\xE1rio de piscina natural de revista. Nos dias de sol, a \xE1gua ganha tons que v\xE3o do verde ao azul-turquesa.",
-      tags: ["Piscina natural", "\xC1guas esverdeadas"],
-      ratio: 1.776,
-      // 1671 × 941
-      images: [`${IMG3}/Renata.webp`]
-    },
-    {
-      id: "tombador",
-      name: "Cachoeira do Tombador",
-      context: "Queda imponente, po\xE7o profundo",
-      category: "Cachoeira",
-      description: "Queda alta e volumosa que despenca sobre um po\xE7o profundo \u2014 o cl\xE1ssico cart\xE3o-postal de cachoeira. O banho de queda aqui \xE9 dos mais revigorantes.",
-      tags: ["Banho de queda", "Po\xE7o profundo"],
-      ratio: 1.775,
-      // 1670 × 941
-      images: [`${IMG3}/Tombador.webp`]
-    },
-    {
-      id: "veu-da-noiva",
-      name: "Cachoeira V\xE9u da Noiva",
-      context: "Cortina d\u2019\xE1gua fotog\xEAnica",
-      category: "Cachoeira",
-      description: "A \xE1gua desce em l\xE2mina ampla sobre a rocha, formando uma cortina branca que lembra um v\xE9u \u2014 da\xED o nome. Uma das paisagens mais fotog\xEAnicas entre as cachoeiras da regi\xE3o.",
-      tags: ["Fotog\xEAnica", "Cortina d\u2019\xE1gua"],
-      ratio: 1.777,
-      // 1672 × 941
-      images: [`${IMG3}/V\xE9u da Noiva.webp`]
-    }
-  ];
-  function renderWaterfalls() {
-    renderPlaceTiles(document.getElementById("waterfallsGrid"), WATERFALLS, { note: NOTE2 });
-  }
-
-  // assets/js/attractions.js
-  var IMG4 = "/assets/imagens/pontos tur\xEDsticos";
-  var NOTE3 = "Hor\xE1rios, programa\xE7\xE3o e disponibilidade podem variar conforme a temporada e as condi\xE7\xF5es locais. Confirme antes de programar sua visita.";
-  var ATTRACTIONS = [
-    {
-      id: "ubatuba-mall",
-      name: "Ubatuba Mall",
-      context: "Compras e alimenta\xE7\xE3o na cidade",
-      category: "Compras",
-      description: "Centro de compras no cora\xE7\xE3o de Ubatuba, com lojas e pra\xE7a de alimenta\xE7\xE3o. Uma boa pedida para os dias de chuva ou para relaxar entre um passeio e outro.",
-      tags: ["Compras", "Gastronomia"],
-      images: [`${IMG4}/Ubatuba-Mall-Aeroporto.webp`]
-    },
-    {
-      id: "aquario",
-      name: "Aqu\xE1rio de Ubatuba",
-      context: "Fauna marinha do litoral norte",
-      category: "Passeio educativo",
-      description: "Aqu\xE1rio municipal dedicado \xE0 fauna marinha da regi\xE3o. Um passeio educativo e divertido, perfeito para crian\xE7as e adultos conhecerem de perto as esp\xE9cies que vivem no litoral.",
-      tags: ["Fam\xEDlias", "Fauna marinha"],
-      images: [`${IMG4}/Aquario-de-Ubatuba-2-2.webp`]
-    },
-    {
-      id: "projeto-tamar",
-      name: "Projeto Tamar",
-      context: "Conserva\xE7\xE3o de tartarugas marinhas",
-      category: "Natureza",
-      description: "Base do Projeto Tamar em Ubatuba, dedicada \xE0 prote\xE7\xE3o das tartarugas marinhas. Vale a visita para conhecer o trabalho de conserva\xE7\xE3o \u2014 e, em \xE9pocas adequadas, acompanhar atividades como a soltura de filhotes.",
-      tags: ["Conserva\xE7\xE3o", "Ao ar livre"],
-      images: [`${IMG4}/fundacao_projeto_tamar_ubatuba07.webp`]
-    },
-    {
-      id: "sobradao-do-porto",
-      name: "Sobrad\xE3o do Porto",
-      context: "Hist\xF3ria e cultura \xE0 beira-mar",
-      category: "Patrim\xF4nio",
-      description: "Casar\xE3o hist\xF3rico na orla do bairro do Porto, um dos cart\xF5es-postais da cidade. O im\xF3vel abriga atividades culturais e \xE9 parada obrigat\xF3ria para quem gosta de hist\xF3ria \u2014 e de uma boa foto.",
-      tags: ["Patrim\xF4nio", "Cultura"],
-      images: [`${IMG4}/Casarao-de-Ubatuba-2.webp`]
-    },
-    {
-      id: "ilhas",
-      name: "Ilhas Paradis\xEDacas",
-      context: "Passeios de barco pelo litoral",
-      category: "Passeio de barco",
-      description: "Passeios de escuna e barcos menores levam a ilhas e praias de acesso apenas pelo mar, como a regi\xE3o da Ilha Anchieta e do Prumirim \u2014 \xE1guas claras, paisagens preservadas e paradas para banho.",
-      tags: ["Passeio de barco", "Natureza"],
-      images: [`${IMG4}/Ilhas.png`]
-    },
-    {
-      id: "trilha-7-praias",
-      name: "Trilha das 7 Praias",
-      context: "Natureza e praias selvagens",
-      category: "Trilha",
-      description: "Uma das trilhas costeiras mais famosas do litoral paulista: cerca de 7 km ligando a Praia da Lagoinha ao Saco da Ribeira, passando por praias desertas, morros e mirantes naturais.",
-      tags: ["Trilha", "Praias selvagens"],
-      images: [`${IMG4}/Trilha 7 praias.webp`]
-    }
-  ];
-  function renderAttractions() {
-    const grid = document.getElementById("attractionsGrid");
-    if (!grid) return;
-    grid.innerHTML = ATTRACTIONS.map(
-      (attr, i) => `
-    <article class="attr-card reveal" data-delay="${i % 3 * 100}" data-attraction="${attr.id}">
-      <button type="button" class="attr-media" data-action="open" aria-label="Ver detalhes: ${attr.name}">
-        <img
-          src="${attr.images[0] ?? placeholderImage(attr.name)}"
-          alt="${attr.name}"
-          loading="lazy"
-          decoding="async"
-        />
-        <span class="attr-category">${attr.category}</span>
-        <span class="attr-name">${attr.name}</span>
-        <span class="attr-arrow" aria-hidden="true">${ICONS.arrowRight}</span>
+        ${category ? `<span class="poi-badge">${categoryIcon(category.icon || category.slug)}<span>${category.name}</span></span>` : ""}
+        ${point2.featured ? '<span class="poi-featured">Destaque</span>' : ""}
       </button>
-      <div class="attr-body">
-        <p class="attr-context">${attr.context}</p>
-        <button type="button" class="attr-more" data-action="open">
-          Explorar ${ICONS.arrowRight}
+      <div class="poi-body">
+        <h3>${point2.name}</h3>
+        ${point2.context ? `<p class="poi-context">${point2.context}</p>` : ""}
+        ${location ? `<p class="poi-location">${ICONS.pin}<span>${location}</span></p>` : ""}
+        <button type="button" class="poi-more" data-action="open">
+          Ver detalhes ${ICONS.arrowRight}
         </button>
       </div>
-    </article>`
-    ).join("");
-    grid.querySelectorAll("img").forEach(guardImage);
-    grid.querySelectorAll('[data-action="open"]').forEach((el) => {
-      el.addEventListener("click", () => {
-        const id = el.closest("[data-attraction]").dataset.attraction;
-        const attraction = ATTRACTIONS.find((a) => a.id === id);
-        if (attraction) openPlaceModal(attraction, { note: NOTE3 });
-      });
-    });
+    </article>`;
   }
-
-  // assets/js/nightlife.js
-  var IMG5 = "/assets/imagens/o que fazer a noite";
-  var NIGHTLIFE = [
-    {
-      id: "rua-guarani",
-      title: "Rua Guarani",
-      icon: "mug",
-      image: `${IMG5}/Rua Guarani.webp`,
-      intro: "O principal ponto de encontro da noite ubatubense: bares, restaurantes e food trucks concentrados em uma \xFAnica rua \u2014 d\xE1 para percorrer tudo a p\xE9.",
-      location: "Centro \u2014 Ubatuba/SP",
-      tips: [
-        "V\xE1 a p\xE9: bares e restaurantes ficam concentrados em poucos quarteir\xF5es.",
-        "Nos fins de semana, chegue cedo para encontrar mesa com tranquilidade.",
-        "Estacionamento no centro \xE9 limitado \u2014 considere t\xE1xi ou aplicativo."
-      ],
-      options: [
-        {
-          name: "Passeio a p\xE9 pela rua",
-          desc: "O melhor jeito de aproveitar \xE9 ir sem pressa: tudo fica concentrado em poucos quarteir\xF5es."
-        },
-        {
-          name: "Petiscos e drinks na cal\xE7ada",
-          desc: "Mesinhas na cal\xE7ada, petiscos e drinks tropicais \u2014 o cl\xE1ssico happy hour ubatubense."
-        },
-        {
-          name: "Food trucks e culin\xE1ria casual",
-          desc: "Comida de rua descontra\xEDda e sabores variados para todos os gostos e bolsos."
-        }
-      ]
-    },
-    {
-      id: "baladas-shows",
-      title: "Baladas e Shows",
-      icon: "music",
-      image: `${IMG5}/Baladas e shows.webp`,
-      intro: "Para quem busca m\xFAsica e dan\xE7a, Ubatuba tem op\xE7\xF5es de casa noturna a beach club \u2014 com atra\xE7\xF5es variadas conforme a programa\xE7\xE3o da temporada.",
-      tips: [
-        "A programa\xE7\xE3o muda por temporada \u2014 confira as redes sociais das casas.",
-        "A festa costuma come\xE7ar tarde; jante antes de sair.",
-        "Se for beber, prefira ir e voltar de aplicativo."
-      ],
-      options: [
-        {
-          name: "Casas noturnas",
-          desc: "Pistas com DJs e m\xFAsica ao vivo \u2014 a festa come\xE7a tarde e segue at\xE9 de madrugada."
-        },
-        {
-          name: "Beach clubs",
-          desc: "Em alta temporada, funcionam at\xE9 a noite com m\xFAsica, petiscos e vista para o mar."
-        },
-        {
-          name: "Eventos e festas sazonais",
-          desc: "No ver\xE3o e nos feriad\xF5es, a cidade recebe eventos especiais \u2014 acompanhe a programa\xE7\xE3o."
-        }
-      ]
-    },
-    {
-      id: "teatro-artes",
-      title: "Teatro e Artes",
-      icon: "ticket",
-      image: `${IMG5}/Teatro e Artes.webp`,
-      intro: "Op\xE7\xF5es culturais para uma noite mais tranquila \u2014 entre pe\xE7as, apresenta\xE7\xF5es e o artesanato local.",
-      location: "Pra\xE7a Exalta\xE7\xE3o \xE0 Santa Cruz, 22 - Centro, Ubatuba - SP, 11680-000",
-      tips: [
-        "Consulte a programa\xE7\xE3o da semana antes de sair de casa.",
-        "Em temporada, chegue com anteced\xEAncia para garantir lugar.",
-        "Combine com um jantar no centro para aproveitar a noite."
-      ],
-      options: [
-        {
-          name: "Programa\xE7\xE3o cultural",
-          desc: "Pe\xE7as e apresenta\xE7\xF5es movimentam a agenda da cidade, principalmente em temporada."
-        },
-        {
-          name: "Feiras de artesanato",
-          desc: "Lembran\xE7as e produtos regionais para levar um pedacinho de Ubatuba com voc\xEA."
-        },
-        {
-          name: "Galerias e ateli\xEAs",
-          desc: "Espa\xE7os de arte e ateli\xEAs de artistas locais \u2014 um passeio tranquilo e inspirador."
-        }
-      ]
-    },
-    {
-      id: "shopping",
-      title: "Shopping",
-      icon: "bag",
-      image: `${IMG5}/Shopping.webp`,
-      intro: "Para um programa tranquilo, a cidade tem shoppings e galerias com lojas, alimenta\xE7\xE3o e \xE1reas de lazer \u2014 perfeito para a noite ou para dias de chuva.",
-      location: "Rua Guarani, 374 - Itagu\xE1, Ubatuba - SP, 11689-046",
-      tips: [
-        "Em alta temporada, o hor\xE1rio costuma ser estendido.",
-        "Boa pedida para dias de chuva ou noites mais tranquilas.",
-        "Mercados e conveni\xEAncias do centro atendem at\xE9 tarde."
-      ],
-      options: [
-        {
-          name: "Shoppings e galerias",
-          desc: "Lojas, pra\xE7a de alimenta\xE7\xE3o e \xE1reas de lazer para uma noite despreocupada."
-        },
-        {
-          name: "Artesanato e lembran\xE7as",
-          desc: "Produtos regionais e lembran\xE7as de praia para garimpar bons presentes."
-        },
-        {
-          name: "Mercados e conveni\xEAncias",
-          desc: "Tudo para o caf\xE9 da manh\xE3 ou o churrasco no apartamento, perto de voc\xEA."
-        }
-      ]
-    },
-    {
-      id: "parque-diversao",
-      title: "Parque de Divers\xE3o",
-      icon: "ferris",
-      image: `${IMG5}/Parque de divers\xE3o.webp`,
-      intro: "Divers\xE3o para toda a fam\xEDlia at\xE9 a noite cair: atra\xE7\xF5es e espa\xE7os de lazer que garantem o programa das crian\xE7as \u2014 e de quem \xE9 crian\xE7a por dentro.",
-      location: "Av. Iperoig - Centro, Ubatuba - SP, 11680-000",
-      tips: [
-        "Em alta temporada, o funcionamento costuma se estender at\xE9 a noite.",
-        "Ideal para gastar a energia da crian\xE7ada antes de dormir.",
-        "Confira ingressos e hor\xE1rios na chegada \xE0 cidade."
-      ],
-      options: [
-        {
-          name: "Atra\xE7\xF5es para a crian\xE7ada",
-          desc: "Brinquedos e atividades de recrea\xE7\xE3o para os pequenos gastarem energia."
-        },
-        {
-          name: "Divers\xE3o para todas as idades",
-          desc: "Atra\xE7\xF5es que agradam em fam\xEDlia \u2014 ningu\xE9m fica de fora do programa."
-        },
-        {
-          name: "Lazer em dias de chuva",
-          desc: "Op\xE7\xF5es de lazer cobertas que salvam o passeio quando o tempo fecha."
-        }
-      ]
-    }
-  ];
-  function panelHTML(category) {
-    return `
-    <div class="night-panel-head">
-      <figure class="night-cover">
-        <img
-          src="${category.image}"
-          alt="${category.title} \xE0 noite em Ubatuba"
-          loading="lazy"
-          decoding="async"
-        />
-      </figure>
-      <div class="night-head-text">
-        <span class="night-panel-icon" aria-hidden="true">${ICONS[category.icon] ?? ICONS.moon}</span>
-        <h3 class="night-panel-title">${category.title}</h3>
-        <p class="night-intro">${category.intro}</p>
-      </div>
-    </div>
-    <div class="night-panel-body">
-      <ul class="night-options">
-        ${category.options.map(
-      (o) => `
-          <li class="night-option">
-            <h4>${o.name}</h4>
-            <p>${o.desc}</p>
-          </li>`
-    ).join("")}
-      </ul>
-      <aside class="night-aside">
-        ${category.location ? `
-        <div class="night-info-block">
-          <h5>${ICONS.pin} Localiza\xE7\xE3o</h5>
-          <p>${category.location}</p>
-        </div>` : ""}
-        <div class="night-info-block">
-          <h5>${ICONS.info} Informa\xE7\xF5es</h5>
-          <ul class="night-info-list">
-            ${category.tips.map((t) => `<li>${ICONS.check}<span>${t}</span></li>`).join("")}
-          </ul>
-        </div>
-      </aside>
-    </div>`;
-  }
-  function renderNightlife() {
-    const mount = document.getElementById("nightlifeMount");
+  function renderPoints() {
+    const mount = document.getElementById("pointsMount");
     if (!mount) return;
+    if (!linkedWhatsApp()) {
+      mount.innerHTML = '<p class="section-sub">Este site ainda n\xE3o est\xE1 vinculado a uma empresa. Acesse o endere\xE7o com o n\xFAmero de WhatsApp da empresa no final (ex.: site.com/12997353792).</p>';
+      return;
+    }
+    if (points.length === 0) {
+      mount.innerHTML = '<p class="section-sub">Nenhum ponto de interesse cadastrado no momento.</p>';
+      return;
+    }
+    const visibleCategories = categories.filter((c) => points.some((p) => p.categoryId === c.id));
     mount.innerHTML = `
-    <div class="night-wrap reveal">
-      <div class="night-tabs" role="tablist" aria-label="Categorias da noite em Ubatuba">
-        ${NIGHTLIFE.map(
-      (c, i) => `
-          <button
-            type="button"
-            class="night-tab${i === 0 ? " is-active" : ""}"
-            role="tab"
-            id="night-tab-${c.id}"
-            aria-selected="${i === 0}"
-            aria-controls="nightPanel"
-            tabindex="${i === 0 ? "0" : "-1"}"
-            data-night="${c.id}"
-          >
-            ${ICONS[c.icon] ?? ICONS.moon}
-            <span>${c.title}</span>
-          </button>`
-    ).join("")}
-      </div>
-      <div
-        class="night-panel"
-        id="nightPanel"
-        role="tabpanel"
-        tabindex="0"
-        aria-live="polite"
-        aria-labelledby="night-tab-${NIGHTLIFE[0].id}"
-      ></div>
-    </div>`;
-    const tabs = [...mount.querySelectorAll(".night-tab")];
-    const panel = mount.querySelector("#nightPanel");
-    const showPanel = (category) => {
-      panel.innerHTML = panelHTML(category);
-      panel.querySelectorAll("img").forEach(guardImage);
+    <div class="poi-filters" role="group" aria-label="Filtrar pontos de interesse por categoria">
+      <button type="button" class="poi-filter is-active" data-category="all" aria-pressed="true">
+        ${ICONS.compass}<span>Todos</span>
+        <span class="poi-count">${points.length}</span>
+      </button>
+      ${visibleCategories.map((c) => {
+      const count = points.filter((p) => p.categoryId === c.id).length;
+      return `
+      <button type="button" class="poi-filter" data-category="${c.id}" aria-pressed="false">
+        ${categoryIcon(c.icon || c.slug)}<span>${c.name}</span>
+        <span class="poi-count">${count}</span>
+      </button>`;
+    }).join("")}
+    </div>
+    <div class="poi-grid" data-points-grid></div>
+    <p class="poi-empty" hidden>Nenhum ponto de interesse nesta categoria.</p>`;
+    const grid = mount.querySelector("[data-points-grid]");
+    const empty = mount.querySelector(".poi-empty");
+    const filters = [...mount.querySelectorAll(".poi-filter")];
+    const openPoint = (el) => {
+      const point2 = points.find((p) => p.id === el.closest("[data-point]").dataset.point);
+      if (point2) openPointModal(point2, categoryOf(point2));
     };
-    const select = (id, { animate = true } = {}) => {
-      const category = NIGHTLIFE.find((c) => c.id === id);
-      if (!category) return;
-      tabs.forEach((t) => {
-        const active = t.dataset.night === id;
-        t.classList.toggle("is-active", active);
-        t.setAttribute("aria-selected", String(active));
-        t.tabIndex = active ? 0 : -1;
-        if (active) panel.setAttribute("aria-labelledby", t.id);
+    const show = (categoryId) => {
+      const list = categoryId === "all" ? points : points.filter((p) => p.categoryId === categoryId);
+      empty.hidden = list.length > 0;
+      grid.innerHTML = list.map(pointCard).join("");
+      grid.querySelectorAll("img").forEach(guardImage);
+      grid.querySelectorAll('[data-action="open"]').forEach((el) => {
+        el.addEventListener("click", () => openPoint(el));
       });
-      if (!animate) {
-        showPanel(category);
-        return;
-      }
-      panel.classList.add("is-switching");
-      setTimeout(() => {
-        showPanel(category);
-        panel.classList.remove("is-switching");
-      }, 190);
     };
-    tabs.forEach((tab, i) => {
-      tab.addEventListener("click", () => select(tab.dataset.night));
-      tab.addEventListener("keydown", (e) => {
-        const dir = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : e.key === "ArrowLeft" || e.key === "ArrowUp" ? -1 : 0;
-        if (!dir) return;
-        e.preventDefault();
-        const next = tabs[(i + dir + tabs.length) % tabs.length];
-        next.focus();
-        select(next.dataset.night);
+    filters.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        filters.forEach((b) => {
+          const active = b === btn;
+          b.classList.toggle("is-active", active);
+          b.setAttribute("aria-pressed", String(active));
+        });
+        grid.classList.add("is-switching");
+        setTimeout(() => {
+          show(btn.dataset.category);
+          grid.classList.remove("is-switching");
+        }, 180);
       });
     });
-    select(NIGHTLIFE[0].id, { animate: false });
+    show("all");
   }
 
   // assets/js/main.js
@@ -1404,11 +1486,6 @@ Lembrando que amanh\xE3 cedo ir\xE1 ligar automaticamente, para filtrar a \xE1gu
   var API_IMOVEIS_URL = "/api/imoveis";
   var API_EMPRESA_URL = "/api/empresa";
   var APARTMENTS2 = APARTMENTS;
-  function linkedWhatsApp() {
-    const segment = window.location.pathname.split("/").filter(Boolean).pop() ?? "";
-    const digits = segment.replace(/\D/g, "");
-    return /^\d{10,15}$/.test(digits) ? digits : null;
-  }
   async function loadApartments() {
     const whatsapp = linkedWhatsApp();
     if (!whatsapp) {
@@ -1631,10 +1708,7 @@ Lembrando que amanh\xE3 cedo ir\xE1 ligar automaticamente, para filtrar a \xE1gu
     bindConfig();
     injectIcons();
     renderApartments();
-    renderBeaches();
-    renderWaterfalls();
-    renderAttractions();
-    renderNightlife();
+    renderPoints();
     initNavigation();
     initReveals();
     initHeroTitle();
@@ -1647,7 +1721,7 @@ Lembrando que amanh\xE3 cedo ir\xE1 ligar automaticamente, para filtrar a \xE1gu
     start();
   }
   async function start() {
-    await Promise.all([loadApartments(), loadCompany()]);
+    await Promise.all([loadApartments(), loadCompany(), loadPoints()]);
     init();
   }
 })();

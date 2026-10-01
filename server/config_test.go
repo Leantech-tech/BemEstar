@@ -27,8 +27,8 @@ func TestConfigFromEnvDefaultsToCurrentSiteDir(t *testing.T) {
 	}()
 
 	cfg := ConfigFromEnv()
-	if cfg.SiteDir != "." {
-		t.Fatalf("SiteDir esperado '.'; recebido %q", cfg.SiteDir)
+	if cfg.SiteDir != ".." {
+		t.Fatalf("SiteDir esperado '..'; recebido %q", cfg.SiteDir)
 	}
 	if cfg.Port != "8080" {
 		t.Fatalf("Port esperado '8080'; recebido %q", cfg.Port)

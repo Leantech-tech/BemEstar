@@ -29,7 +29,7 @@ func ConfigFromEnv() Config {
 		DBUser:  envOr("DB_USER", "postgres"),
 		DBPass:  os.Getenv("DB_PASSWORD"),
 		Port:    envOr("PORT", "8080"),
-		SiteDir: envOr("SITE_DIR", "."),
+		SiteDir: envOr("SITE_DIR", ".."),
 	}
 }
 

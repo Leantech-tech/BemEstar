@@ -1,6 +1,7 @@
 import { openModal } from './modal.js';
 import { openBooking } from './booking.js';
 import { createGallery } from './gallery.js';
+import { openReviewsModal } from './reviews.js';
 import {
   ICONS,
   amenityIcon,
@@ -174,11 +175,14 @@ Lembrando que amanhã cedo irá ligar automaticamente, para filtrar a água, dei
           <span class="detail-price-label">Investimento</span>
           <strong>${apartment.price ? esc(apartment.price) : 'Sob consulta'}</strong>
         </div>
-        ${
-          apartment.available
-            ? `<button type="button" class="btn btn-primary btn-lg" data-action="rent">Alugar ${ICONS.arrowRight}</button>`
-            : '<p class="detail-unavailable">Este imóvel não está disponível no momento. Fale conosco para conhecer outras opções.</p>'
-        }
+        <div class="detail-actions">
+          ${
+            apartment.available
+              ? `<button type="button" class="btn btn-primary btn-lg" data-action="rent">Alugar ${ICONS.arrowRight}</button>`
+              : '<p class="detail-unavailable">Este imóvel não está disponível no momento. Fale conosco para conhecer outras opções.</p>'
+          }
+          <button type="button" class="btn btn-secondary" data-action="reviews">Avaliar ${ICONS.star || ''}</button>
+        </div>
       </div>
     </article>`;
 
@@ -193,6 +197,15 @@ Lembrando que amanhã cedo irá ligar automaticamente, para filtrar a água, dei
   modal.body.querySelector('[data-action="rent"]')?.addEventListener('click', () => {
     modal.close();
     setTimeout(() => openBooking(apartment), 240);
+  });
+
+  const detailOverlay = modal.sheet.closest('.modal-overlay');
+  modal.body.querySelector('[data-action="reviews"]')?.addEventListener('click', () => {
+    // Esconde o modal de detalhes (não fecha) para evitar flash da grade
+    if (detailOverlay) detailOverlay.style.display = 'none';
+    openReviewsModal(apartment.id, apartment.name, () => {
+      if (detailOverlay) detailOverlay.style.display = 'flex';
+    });
   });
 
   // Remove os listeners da galeria quando o modal fechar

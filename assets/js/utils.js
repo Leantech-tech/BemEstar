@@ -50,7 +50,52 @@ export const ICONS = {
   flame: svg('<path d="M12 3s5 4.6 5 9.1a5 5 0 0 1-10 0c0-1.9 1-3.4 2-4.9.5 1.4 1.5 2 2.5 2.1C11.3 7 11.6 5 12 3z"/>'),
   info: svg('<circle cx="12" cy="12" r="9"/><path d="M12 11.2V16"/><path d="M12 7.8h.01"/>'),
   compass: svg('<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5 13 13l-4.5 2.5L11 11l4.5-2.5z"/>'),
+  /* Categorias de pontos de interesse */
+  restaurant: svg('<path d="M7 3v7a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V3"/><path d="M9 3v18"/><path d="M17 3c-1.7 0-3 1.8-3 4v4h3v10"/><path d="M17 3v8"/>'),
+  cart: svg('<circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/><path d="M3 4h2l2.6 11.2a1.6 1.6 0 0 0 1.6 1.3h7.9a1.6 1.6 0 0 0 1.6-1.3L20.5 8H6"/>'),
+  beach: svg('<path d="M12 3a8.5 8.5 0 0 0-8.5 8.5h17A8.5 8.5 0 0 0 12 3z"/><path d="M12 3c-2.2 2.3-2.2 6.2 0 8.5"/><path d="M12 3c2.2 2.3 2.2 6.2 0 8.5"/><path d="M12 11.5 13.5 18"/><path d="M6 21c2-1.6 4-1.6 6 0s4 1.6 6 0"/>'),
+  waterfall: svg('<path d="M4 4c0 4 1.6 4 1.6 8S4 16 4 20"/><path d="M9.6 4c0 4 1.6 4 1.6 8s-1.6 4-1.6 8"/><path d="M15.2 4c0 4 1.6 4 1.6 8s-1.6 4-1.6 8"/><path d="M20.8 4c0 4 1.6 4 1.6 8s-1.6 4-1.6 8" transform="translate(-4.4 0)"/>'),
+  pharmacy: svg('<rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8"/><path d="M8 12h8"/>'),
+  fuel: svg('<path d="M5 21V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v15"/><path d="M3.5 21h13"/><path d="M15 10h2.2a1.8 1.8 0 0 1 1.8 1.8v5.4a1.6 1.6 0 0 0 3.2 0V9.6L20 7"/><path d="M7.5 8.5h5"/>'),
+  camera: svg('<path d="M4 8h3l2-2.5h6L17 8h3a1.5 1.5 0 0 1 1.5 1.5V19a1.5 1.5 0 0 1-1.5 1.5H4A1.5 1.5 0 0 1 2.5 19V9.5A1.5 1.5 0 0 1 4 8z"/><circle cx="12" cy="13.5" r="3.4"/>'),
+  store: svg('<path d="M4.5 9.5 6 4h12l1.5 5.5"/><path d="M4.5 9.5h15"/><path d="M5.5 9.5V20h13V9.5"/><path d="M9.5 20v-5.5h5V20"/>'),
+  phone: svg('<path d="M5 4h4l1.5 4.5L8 10a12 12 0 0 0 6 6l1.5-2.5L20 15v4a1.5 1.5 0 0 1-1.6 1.5C10.5 19.9 4.1 13.5 3.5 5.6A1.5 1.5 0 0 1 5 4z"/>'),
+  globe: svg('<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.6 2.5 4 5.6 4 9s-1.4 6.5-4 9c-2.6-2.5-4-5.6-4-9s1.4-6.5 4-9z"/>'),
 };
+
+/**
+ * Extrai o WhatsApp da empresa vinculada do final da URL.
+ * Ex.: "site.com/12997353792/" -> "12997353792"; sem vínculo -> null.
+ */
+export function linkedWhatsApp() {
+  const segment = window.location.pathname.split('/').filter(Boolean).pop() ?? '';
+  const digits = segment.replace(/\D/g, '');
+  return /^\d{10,15}$/.test(digits) ? digits : null;
+}
+
+/**
+ * Mapeia o slug/ícone de uma categoria de ponto de interesse (nomes
+ * do Material Symbols gravados no banco) para o ícone SVG local.
+ */
+export function categoryIcon(key) {
+  const t = String(key || '').toLowerCase();
+  if (/praia|beach/.test(t)) return ICONS.beach;
+  if (/cachoeira|waterfall|queda/.test(t)) return ICONS.waterfall;
+  if (/restaurante|restaurant|food|lanche|pizzaria|hamburgueria/.test(t)) return ICONS.restaurant;
+  if (/mercado|shopping_cart|supermercado|compra/.test(t)) return ICONS.cart;
+  if (/farmacia|farmácia|pharmacy|drugstore/.test(t)) return ICONS.pharmacy;
+  if (/hospital|clinica|clínica|saude|saúde|local_hospital/.test(t)) return ICONS.pharmacy;
+  if (/posto|gas|combust/.test(t)) return ICONS.fuel;
+  if (/bar|local_bar|bebida|drink/.test(t)) return ICONS.cocktail;
+  if (/cafe|café|cafeteria|local_cafe/.test(t)) return ICONS.mug;
+  if (/loja|store|boutique/.test(t)) return ICONS.store;
+  if (/passeio|tour|trilha|atracao|atração|turismo/.test(t)) return ICONS.compass;
+  if (/foto|mirante|camera|photo/.test(t)) return ICONS.camera;
+  if (/noite|balada|noturno|show/.test(t)) return ICONS.moon;
+  if (/parque|park|divers/.test(t)) return ICONS.ferris;
+  if (/evento|teatro|cultura|arte/.test(t)) return ICONS.ticket;
+  return ICONS.pin;
+}
 
 /** Mapeia o nome de uma comodidade para o ícone correspondente. */
 export function amenityIcon(label) {

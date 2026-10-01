@@ -35,6 +35,20 @@ func main() {
 		db = conn
 		defer db.Close()
 		log.Printf("conectado ao banco %s@%s:%s/%s", cfg.DBUser, cfg.DBHost, cfg.DBPort, cfg.DBName)
+
+		if _, err := db.ExecContext(context.Background(), `
+			CREATE TABLE IF NOT EXISTS avaliacoes (
+				id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+				imovel_id UUID NOT NULL REFERENCES imoveis(id) ON DELETE CASCADE,
+				nome VARCHAR(100) NOT NULL,
+				nota SMALLINT NOT NULL CHECK (nota BETWEEN 1 AND 5),
+				comentario TEXT,
+				created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+			);
+			CREATE INDEX IF NOT EXISTS idx_avaliacoes_imovel ON avaliacoes(imovel_id);
+		`); err != nil {
+			log.Printf("AVISO: não foi possível criar tabela avaliacoes: %v", err)
+		}
 	}
 
 	app := &App{db: db}
@@ -43,6 +57,10 @@ func main() {
 	mux.HandleFunc("GET /api/imoveis", app.listImoveis)
 	mux.HandleFunc("GET /api/imoveis/{id}", app.getImovel)
 	mux.HandleFunc("GET /api/empresa", app.getEmpresa)
+	mux.HandleFunc("GET /api/pontos-interesse", app.listPontosInteresse)
+	mux.HandleFunc("GET /api/imoveis/{id}/avaliacoes", app.listAvaliacoes)
+	mux.HandleFunc("POST /api/imoveis/{id}/avaliacoes", app.createAvaliacao)
+	mux.HandleFunc("GET /debug/pontos", app.debugPontos)
 	mux.Handle("/", staticHandler(cfg.SiteDir))
 
 	addr := ":" + cfg.Port
