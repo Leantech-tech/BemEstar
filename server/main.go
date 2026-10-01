@@ -17,23 +17,28 @@ func main() {
 
 	cfg := ConfigFromEnv()
 
-	conn, err := sql.Open("postgres", cfg.DSN())
-	if err != nil {
-		log.Fatalf("configurar conexão: %v", err)
-	}
-
 	// O site funciona sem banco: a API fica indisponível (503) e o
 	// frontend usa os dados de exemplo embutidos.
+	// Conexão com banco é feita em background para não bloquear startup.
 	var db *sql.DB
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
 
-	if err := conn.PingContext(ctx); err != nil {
-		log.Printf("AVISO: banco indisponível (%v) — a API de imóveis ficará fora do ar e o site usará os dados de exemplo", err)
-		conn.Close()
-	} else {
+	go func() {
+		conn, err := sql.Open("postgres", cfg.DSN())
+		if err != nil {
+			log.Printf("AVISO: erro ao configurar conexão com banco: %v", err)
+			return
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		if err := conn.PingContext(ctx); err != nil {
+			log.Printf("AVISO: banco indisponível (%v) — a API de imóveis ficará fora do ar e o site usará os dados de exemplo", err)
+			conn.Close()
+			return
+		}
+
 		db = conn
-		defer db.Close()
 		log.Printf("conectado ao banco %s@%s:%s/%s", cfg.DBUser, cfg.DBHost, cfg.DBPort, cfg.DBName)
 
 		if _, err := db.ExecContext(context.Background(), `
@@ -49,7 +54,7 @@ func main() {
 		`); err != nil {
 			log.Printf("AVISO: não foi possível criar tabela avaliacoes: %v", err)
 		}
-	}
+	}()
 
 	app := &App{db: db}
 
