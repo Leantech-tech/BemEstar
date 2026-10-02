@@ -20,7 +20,9 @@ func main() {
 	// O site funciona sem banco: a API fica indisponível (503) e o
 	// frontend usa os dados de exemplo embutidos.
 	// Conexão com banco é feita em background para não bloquear startup.
-	var db *sql.DB
+	// Criado antes da goroutine para que a conexão, quando estabelecida,
+	// seja publicada no App (e não perdida numa cópia de valor nil).
+	app := &App{}
 
 	go func() {
 		conn, err := sql.Open("postgres", cfg.DSN())
@@ -38,10 +40,10 @@ func main() {
 			return
 		}
 
-		db = conn
+		app.db.Store(conn)
 		log.Printf("conectado ao banco %s@%s:%s/%s", cfg.DBUser, cfg.DBHost, cfg.DBPort, cfg.DBName)
 
-		if _, err := db.ExecContext(context.Background(), `
+		if _, err := conn.ExecContext(context.Background(), `
 			CREATE TABLE IF NOT EXISTS avaliacoes (
 				id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 				imovel_id UUID NOT NULL REFERENCES imoveis(id) ON DELETE CASCADE,
@@ -55,8 +57,6 @@ func main() {
 			log.Printf("AVISO: não foi possível criar tabela avaliacoes: %v", err)
 		}
 	}()
-
-	app := &App{db: db}
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/imoveis", app.listImoveis)

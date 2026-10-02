@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync/atomic"
 )
 
 // ImovelDTO é o formato exposto à API, pronto para o frontend consumir.
@@ -50,8 +51,17 @@ type ImovelDTO struct {
 	GuestInfo      string   `json:"guestInstructions"`
 }
 
+// App guarda a conexão com o banco em um ponteiro atômico: a conexão
+// é estabelecida em background após o startup e publicada via Store,
+// sem corrida com os handlers que leem via DB().
 type App struct {
-	db *sql.DB
+	db atomic.Pointer[sql.DB]
+}
+
+// DB retorna a conexão ativa, ou nil se o banco ainda não conectou
+// (ou está indisponível). Handlers devem responder 503 quando nil.
+func (a *App) DB() *sql.DB {
+	return a.db.Load()
 }
 
 // PontoCategoriaDTO é a categoria de ponto de interesse exposta à API.
@@ -94,7 +104,7 @@ type PontosInteresseResponse struct {
 // interesse ativos e publicados da empresa vinculada via WhatsApp
 // (?whatsapp=...). Sem vínculo válido, retorna listas vazias.
 func (a *App) listPontosInteresse(w http.ResponseWriter, r *http.Request) {
-	if a.db == nil {
+	if a.DB() == nil {
 		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "banco de dados indisponível"})
 		return
 	}
@@ -110,7 +120,7 @@ func (a *App) listPontosInteresse(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	catRows, err := a.db.QueryContext(r.Context(), `
+	catRows, err := a.DB().QueryContext(r.Context(), `
 		SELECT id, coalesce(nome, ''), coalesce(slug, ''), coalesce(icone, ''), coalesce(ordem, 999)
 		FROM categorias_ponto_interesse
 		WHERE empresa_id = $1::uuid AND ativo
@@ -134,7 +144,7 @@ func (a *App) listPontosInteresse(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pontoRows, err := a.db.QueryContext(r.Context(), `
+	pontoRows, err := a.DB().QueryContext(r.Context(), `
 		SELECT p.id, p.nome,
 		       coalesce(p.descricao, ''),
 		       coalesce(p.endereco, ''), coalesce(p.numero, ''), coalesce(p.complemento, ''),
@@ -203,7 +213,7 @@ type EmpresaDTO struct {
 // getEmpresa retorna os dados públicos da empresa vinculada via
 // WhatsApp (?whatsapp=...). Sem correspondência, 404.
 func (a *App) getEmpresa(w http.ResponseWriter, r *http.Request) {
-	if a.db == nil {
+	if a.DB() == nil {
 		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "banco de dados indisponível"})
 		return
 	}
@@ -215,7 +225,7 @@ func (a *App) getEmpresa(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var e EmpresaDTO
-	err := a.db.QueryRowContext(r.Context(), `
+	err := a.DB().QueryRowContext(r.Context(), `
 		SELECT id, coalesce(nullif(nome_fantasia, ''), razao_social, ''),
 		       coalesce(razao_social, ''), coalesce(whatsapp, ''),
 		       coalesce(email, ''), coalesce(endereco, ''),
@@ -235,7 +245,7 @@ func (a *App) getEmpresa(w http.ResponseWriter, r *http.Request) {
 // listImoveis retorna os imóveis ativos da empresa vinculada via
 // WhatsApp (?whatsapp=...). Sem vínculo válido, retorna lista vazia.
 func (a *App) listImoveis(w http.ResponseWriter, r *http.Request) {
-	if a.db == nil {
+	if a.DB() == nil {
 		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "banco de dados indisponível"})
 		return
 	}
@@ -255,7 +265,7 @@ func (a *App) listImoveis(w http.ResponseWriter, r *http.Request) {
 
 // getImovel retorna um imóvel específico da empresa vinculada (ou 404).
 func (a *App) getImovel(w http.ResponseWriter, r *http.Request) {
-	if a.db == nil {
+	if a.DB() == nil {
 		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "banco de dados indisponível"})
 		return
 	}
@@ -308,7 +318,7 @@ func (a *App) resolveEmpresa(r *http.Request, whatsapp string) (id string, ok bo
 		return "", false
 	}
 
-	err := a.db.QueryRowContext(r.Context(), `
+	err := a.DB().QueryRowContext(r.Context(), `
 		SELECT id FROM empresas
 		WHERE regexp_replace(coalesce(whatsapp, ''), '\D', '', 'g') = $1
 		LIMIT 1`, digits).Scan(&id)
@@ -330,7 +340,7 @@ func onlyDigits(s string) string {
 }
 
 func (a *App) fetchImoveis(r *http.Request, id, empresaID string) ([]ImovelDTO, error) {
-	rows, err := a.db.QueryContext(r.Context(), imoveisQuery, id, empresaID)
+	rows, err := a.DB().QueryContext(r.Context(), imoveisQuery, id, empresaID)
 	if err != nil {
 		return nil, err
 	}
@@ -446,7 +456,7 @@ func (a *App) fetchImoveis(r *http.Request, id, empresaID string) ([]ImovelDTO, 
 }
 
 func (a *App) attachPhotos(r *http.Request, out []ImovelDTO, index map[string]int, ids []string) error {
-	rows, err := a.db.QueryContext(r.Context(), `
+	rows, err := a.DB().QueryContext(r.Context(), `
 		SELECT imovel_id, url
 		FROM imovel_midias
 		WHERE tipo = 'FOTO' AND imovel_id = ANY($1::uuid[])
@@ -478,7 +488,7 @@ func mediaURL(u string) string {
 }
 
 func (a *App) attachAmenities(r *http.Request, out []ImovelDTO, index map[string]int, ids []string) error {
-	rows, err := a.db.QueryContext(r.Context(), `
+	rows, err := a.DB().QueryContext(r.Context(), `
 		SELECT ic.imovel_id, c.nome
 		FROM imovel_comodidades ic
 		JOIN comodidades c ON c.id = ic.comodidade_id
@@ -655,7 +665,7 @@ type AvaliacoesResponse struct {
 
 // listAvaliacoes retorna as avaliações de um imóvel.
 func (a *App) listAvaliacoes(w http.ResponseWriter, r *http.Request) {
-	if a.db == nil {
+	if a.DB() == nil {
 		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "banco indisponível"})
 		return
 	}
@@ -676,7 +686,7 @@ func (a *App) listAvaliacoes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rows, err := a.db.QueryContext(r.Context(), `
+	rows, err := a.DB().QueryContext(r.Context(), `
 		SELECT id, imovel_id, nome, nota, comentario, created_at
 		FROM avaliacoes
 		WHERE imovel_id = $1::uuid
@@ -718,7 +728,7 @@ func (a *App) listAvaliacoes(w http.ResponseWriter, r *http.Request) {
 
 // createAvaliacao cria uma nova avaliação para um imóvel.
 func (a *App) createAvaliacao(w http.ResponseWriter, r *http.Request) {
-	if a.db == nil {
+	if a.DB() == nil {
 		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "banco indisponível"})
 		return
 	}
@@ -754,7 +764,7 @@ func (a *App) createAvaliacao(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var id string
-	err := a.db.QueryRowContext(r.Context(), `
+	err := a.DB().QueryRowContext(r.Context(), `
 		INSERT INTO avaliacoes (imovel_id, nome, nota, comentario)
 		VALUES ($1::uuid, $2, $3, $4)
 		RETURNING id`, imovelID, strings.TrimSpace(input.Nome), input.Nota, strings.TrimSpace(input.Comentario)).Scan(&id)
@@ -768,11 +778,11 @@ func (a *App) createAvaliacao(w http.ResponseWriter, r *http.Request) {
 
 // debugPontos retorna todos os pontos da tabela (sem filtros) para debug.
 func (a *App) debugPontos(w http.ResponseWriter, r *http.Request) {
-	if a.db == nil {
+	if a.DB() == nil {
 		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "banco indisponível"})
 		return
 	}
-	rows, err := a.db.QueryContext(r.Context(), `
+	rows, err := a.DB().QueryContext(r.Context(), `
 		SELECT id, nome, imagem_url, ativo, publicado, categoria_id, empresa_id
 		FROM pontos_interesse`)
 	if err != nil {
@@ -801,7 +811,7 @@ func (a *App) debugPontos(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Also fetch empresas
-	rows2, err := a.db.QueryContext(r.Context(), `SELECT id, nome_fantasia, whatsapp FROM empresas`)
+	rows2, err := a.DB().QueryContext(r.Context(), `SELECT id, nome_fantasia, whatsapp FROM empresas`)
 	if err != nil {
 		respondError(w, err)
 		return
@@ -821,7 +831,7 @@ func (a *App) debugPontos(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Fetch categoria
-	rows3, err := a.db.QueryContext(r.Context(), `SELECT id, nome, ativo FROM categorias_ponto_interesse WHERE id = 'a8304a08-4bd3-45bd-8760-2e20d1662432'`)
+	rows3, err := a.DB().QueryContext(r.Context(), `SELECT id, nome, ativo FROM categorias_ponto_interesse WHERE id = 'a8304a08-4bd3-45bd-8760-2e20d1662432'`)
 	if err != nil {
 		respondError(w, err)
 		return
