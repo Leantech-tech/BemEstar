@@ -64,6 +64,23 @@ func (a *App) DB() *sql.DB {
 	return a.db.Load()
 }
 
+// buildID identifica a build para diagnóstico em produção (via /api/status).
+const buildID = "fix-db-atomic 2026-10-02"
+
+// getStatus é um endpoint de diagnóstico: informa se a build é a
+// corrigida e se a conexão com o banco foi estabelecida. Não expõe
+// credenciais nem dados.
+func (a *App) getStatus(w http.ResponseWriter, r *http.Request) {
+	db := "desconectado"
+	if a.DB() != nil {
+		db = "conectado"
+	}
+	writeJSON(w, http.StatusOK, map[string]string{
+		"build": buildID,
+		"db":    db,
+	})
+}
+
 // PontoCategoriaDTO é a categoria de ponto de interesse exposta à API.
 type PontoCategoriaDTO struct {
 	ID    string `json:"id"`

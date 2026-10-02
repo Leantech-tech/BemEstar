@@ -63,6 +63,7 @@ func main() {
 	mux.HandleFunc("GET /api/imoveis/{id}", app.getImovel)
 	mux.HandleFunc("GET /api/empresa", app.getEmpresa)
 	mux.HandleFunc("GET /api/pontos-interesse", app.listPontosInteresse)
+	mux.HandleFunc("GET /api/status", app.getStatus)
 	mux.HandleFunc("GET /api/imoveis/{id}/avaliacoes", app.listAvaliacoes)
 	mux.HandleFunc("POST /api/imoveis/{id}/avaliacoes", app.createAvaliacao)
 	mux.HandleFunc("GET /debug/pontos", app.debugPontos)
