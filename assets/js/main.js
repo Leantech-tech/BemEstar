@@ -324,6 +324,13 @@ function setupPromoMode() {
   document
     .querySelectorAll('a[href="#apartamentos"], a[href="#pontos-interesse"], a[href="#como-funciona"]')
     .forEach((a) => a.setAttribute('hidden', ''));
+
+  // Sem empresa vinculada não há para quem reservar: some os botões de
+  // WhatsApp (header, menu mobile, faixa de CTA e botão flutuante).
+  document.querySelectorAll('[data-whatsapp-general]').forEach((el) => el.setAttribute('hidden', ''));
+  document.querySelector('.wa-float')?.setAttribute('hidden', '');
+  document.querySelector('.cta-banner')?.setAttribute('hidden', '');
+  document.querySelector('.site-footer')?.setAttribute('hidden', '');
 }
 
 /* ============================================================
