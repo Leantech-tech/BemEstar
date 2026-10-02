@@ -1210,6 +1210,66 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   color: var(--accent-strong);
 }
 
+/* ---------- Propaganda Leantech (site sem vínculo) ---------- */
+.leantech-promo {
+  padding: 4.5rem 0;
+}
+.leantech-promo .promo-card {
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 2.8rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.15rem;
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 18px 40px rgba(18, 51, 59, 0.08);
+}
+.promo-insta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.promo-insta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(18, 51, 59, 0.12);
+}
+.promo-insta svg {
+  width: 22px;
+  height: 22px;
+}
+.promo-title {
+  margin: 0;
+  font-size: 1.6rem;
+  color: var(--ink);
+}
+.promo-text {
+  margin: 0;
+  color: var(--muted);
+  max-width: 44ch;
+}
+.promo-site {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+.promo-site:hover {
+  text-decoration: underline;
+}
+.leantech-promo .btn {
+  margin-top: 0.4rem;
+}
+
 /* ---------- Calendário Moderno ---------- */
 .cal {
   position: relative;

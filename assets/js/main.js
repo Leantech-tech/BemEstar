@@ -306,11 +306,32 @@ function initHeroTitle() {
 }
 
 /* ============================================================
+ *  Modo sem vínculo (propaganda Leantech)
+ * ------------------------------------------------------------
+ *  Sem empresa vinculada na URL, as seções de imóveis e de
+ *  pontos de interesse saem de cena e aparece a propaganda da
+ *  Leantech Automação (criadora do sistema).
+ * ============================================================ */
+function setupPromoMode() {
+  if (linkedWhatsApp()) return;
+
+  document.getElementById('apartamentos')?.setAttribute('hidden', '');
+  document.getElementById('pontos-interesse')?.setAttribute('hidden', '');
+  document.getElementById('leantechPromo')?.removeAttribute('hidden');
+
+  // Esconde os links de navegação das seções removidas
+  document
+    .querySelectorAll('a[href="#apartamentos"], a[href="#pontos-interesse"]')
+    .forEach((a) => a.setAttribute('hidden', ''));
+}
+
+/* ============================================================
  *  Inicialização
  * ============================================================ */
 function init() {
   bindConfig();
   injectIcons();
+  setupPromoMode();
   renderApartments();
   renderPoints();
   initNavigation();
