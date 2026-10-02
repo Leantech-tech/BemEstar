@@ -292,18 +292,33 @@
   function addMonths(date, n) {
     return new Date(date.getFullYear(), date.getMonth() + n, 1);
   }
+  var brlFmt = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+  var formatBRL = (v) => brlFmt.format(v);
+  function bookingPrice(apartment, nights) {
+    const daily = apartment.dailyPrice || null;
+    if (!daily) return null;
+    const cleaning = apartment.cleaningFee || 0;
+    return { daily, cleaning, total: daily * nights + cleaning };
+  }
   function buildWhatsAppLink(message) {
     return `https://wa.me/${SITE_CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
   }
   function buildBookingMessage(apartment, checkIn, checkOut, guests) {
     const nights = nightsBetween(checkIn, checkOut);
-    return [
+    const lines = [
       `Ol\xE1! Gostaria de saber mais sobre o aluguel do ${apartment.name}.`,
       "",
       `\u{1F4C5} Per\xEDodo: ${formatDate(checkIn)} at\xE9 ${formatDate(checkOut)}`,
       `\u{1F319} Di\xE1rias: ${plural(nights, "di\xE1ria", "di\xE1rias")}`,
       `\u{1F465} H\xF3spedes: ${plural(guests, "pessoa", "pessoas")}`
-    ].join("\n");
+    ];
+    const price = bookingPrice(apartment, nights);
+    if (price) {
+      lines.push(`\u{1F4B0} Valor da di\xE1ria: ${formatBRL(price.daily)}`);
+      if (price.cleaning) lines.push(`\u{1F9F9} Taxa de limpeza: ${formatBRL(price.cleaning)}`);
+      lines.push(`\u{1F4B0} Total estimado: ${formatBRL(price.total)}`);
+    }
+    return lines.join("\n");
   }
   var FALLBACK_IMG = "data:image/svg+xml;utf8," + encodeURIComponent(
     `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900"><rect width="1200" height="900" fill="#E8E2D6"/><g fill="none" stroke="#B9AE9C" stroke-width="10" stroke-linecap="round"><path d="M430 470c45-45 90-45 135 0s90 45 135 0 90-45 135 0"/><path d="M430 540c45-45 90-45 135 0s90 45 135 0 90-45 135 0"/></g><text x="600" y="640" font-family="Georgia, serif" font-size="40" fill="#8D8172" text-anchor="middle">Foto do apartamento</text></svg>`
@@ -450,7 +465,6 @@
   };
 
   // assets/js/booking.js
-  var brl = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
   function openBooking(apartment) {
     const state = {
       step: 1,
@@ -537,13 +551,11 @@
     function renderStep3() {
       const nights = nightsBetween(state.checkIn, state.checkOut);
       const waLink = buildWhatsAppLink(buildBookingMessage(apartment, state.checkIn, state.checkOut, state.guests));
-      const daily = apartment.dailyPrice || null;
-      const cleaning = daily ? apartment.cleaningFee || null : null;
-      const total = daily ? daily * nights + (cleaning || 0) : null;
-      const priceRows = daily ? `
-          <div><dt>Valor da di\xE1ria</dt><dd>${brl.format(daily)}</dd></div>
-          ${cleaning ? `<div><dt>Taxa de limpeza</dt><dd>${brl.format(cleaning)}</dd></div>` : ""}
-          <div class="bk-total"><dt>Total estimado</dt><dd>${brl.format(total)}</dd></div>` : "";
+      const price = bookingPrice(apartment, nights);
+      const priceRows = price ? `
+          <div><dt>Valor da di\xE1ria</dt><dd>${formatBRL(price.daily)}</dd></div>
+          ${price.cleaning ? `<div><dt>Taxa de limpeza</dt><dd>${formatBRL(price.cleaning)}</dd></div>` : ""}
+          <div class="bk-total"><dt>Total estimado</dt><dd>${formatBRL(price.total)}</dd></div>` : "";
       body.innerHTML = `
       <div class="bk-step-body">
         <h3 class="bk-title">Confira as informa\xE7\xF5es</h3>
@@ -888,7 +900,7 @@
   }
 
   // assets/js/detail.js
-  var brl2 = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+  var brl = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
   function esc(text) {
     return String(text ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
   }
@@ -920,10 +932,10 @@
       { label: "Permite fumar", value: apartment.smokingAllowed ? "Sim" : "N\xE3o" }
     ].filter(Boolean);
     const costs = [
-      apartment.dailyPrice && { label: "Di\xE1ria (semana)", value: brl2.format(apartment.dailyPrice) },
-      apartment.weekendPrice && { label: "Di\xE1ria (fim de semana)", value: brl2.format(apartment.weekendPrice) },
-      apartment.cleaningFee && { label: "Taxa de limpeza", value: brl2.format(apartment.cleaningFee) },
-      apartment.securityDeposit && { label: "Cau\xE7\xE3o", value: brl2.format(apartment.securityDeposit) }
+      apartment.dailyPrice && { label: "Di\xE1ria (semana)", value: brl.format(apartment.dailyPrice) },
+      apartment.weekendPrice && { label: "Di\xE1ria (fim de semana)", value: brl.format(apartment.weekendPrice) },
+      apartment.cleaningFee && { label: "Taxa de limpeza", value: brl.format(apartment.cleaningFee) },
+      apartment.securityDeposit && { label: "Cau\xE7\xE3o", value: brl.format(apartment.securityDeposit) }
     ].filter(Boolean);
     const html = `
     <article class="detail">

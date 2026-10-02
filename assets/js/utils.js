@@ -161,6 +161,21 @@ export function addMonths(date, n) {
  *  WHATSAPP
  * ============================================================ */
 
+const brlFmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+export const formatBRL = (v) => brlFmt.format(v);
+
+/**
+ * Valores da reserva: diária × noites, somando a taxa de limpeza
+ * quando o imóvel tem. Retorna null quando o imóvel não tem diária
+ * cadastrada (não é possível estimar o total).
+ */
+export function bookingPrice(apartment, nights) {
+  const daily = apartment.dailyPrice || null;
+  if (!daily) return null;
+  const cleaning = apartment.cleaningFee || 0;
+  return { daily, cleaning, total: daily * nights + cleaning };
+}
+
 /** Monta o link wa.me com a mensagem codificada. */
 export function buildWhatsAppLink(message) {
   return `https://wa.me/${SITE_CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
@@ -169,13 +184,20 @@ export function buildWhatsAppLink(message) {
 /** Mensagem contextualizada do fluxo de reserva. */
 export function buildBookingMessage(apartment, checkIn, checkOut, guests) {
   const nights = nightsBetween(checkIn, checkOut);
-  return [
+  const lines = [
     `Olá! Gostaria de saber mais sobre o aluguel do ${apartment.name}.`,
     '',
     `📅 Período: ${formatDate(checkIn)} até ${formatDate(checkOut)}`,
     `🌙 Diárias: ${plural(nights, 'diária', 'diárias')}`,
     `👥 Hóspedes: ${plural(guests, 'pessoa', 'pessoas')}`,
-  ].join('\n');
+  ];
+  const price = bookingPrice(apartment, nights);
+  if (price) {
+    lines.push(`💰 Valor da diária: ${formatBRL(price.daily)}`);
+    if (price.cleaning) lines.push(`🧹 Taxa de limpeza: ${formatBRL(price.cleaning)}`);
+    lines.push(`💰 Total estimado: ${formatBRL(price.total)}`);
+  }
+  return lines.join('\n');
 }
 
 /* ============================================================

@@ -4,13 +4,13 @@ import {
   ICONS,
   formatDate,
   formatGuests,
+  formatBRL,
   plural,
   nightsBetween,
   buildWhatsAppLink,
   buildBookingMessage,
+  bookingPrice,
 } from './utils.js';
-
-const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
 /**
  * Fluxo de reserva em 3 etapas:
@@ -123,15 +123,13 @@ export function openBooking(apartment) {
     const waLink = buildWhatsAppLink(buildBookingMessage(apartment, state.checkIn, state.checkOut, state.guests));
 
     // Valores: diária × noites, somando a taxa de limpeza quando houver.
-    const daily = apartment.dailyPrice || null;
-    const cleaning = daily ? apartment.cleaningFee || null : null;
-    const total = daily ? daily * nights + (cleaning || 0) : null;
+    const price = bookingPrice(apartment, nights);
 
-    const priceRows = daily
+    const priceRows = price
       ? `
-          <div><dt>Valor da diária</dt><dd>${brl.format(daily)}</dd></div>
-          ${cleaning ? `<div><dt>Taxa de limpeza</dt><dd>${brl.format(cleaning)}</dd></div>` : ''}
-          <div class="bk-total"><dt>Total estimado</dt><dd>${brl.format(total)}</dd></div>`
+          <div><dt>Valor da diária</dt><dd>${formatBRL(price.daily)}</dd></div>
+          ${price.cleaning ? `<div><dt>Taxa de limpeza</dt><dd>${formatBRL(price.cleaning)}</dd></div>` : ''}
+          <div class="bk-total"><dt>Total estimado</dt><dd>${formatBRL(price.total)}</dd></div>`
       : '';
 
     body.innerHTML = `
