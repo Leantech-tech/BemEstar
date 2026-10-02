@@ -306,7 +306,7 @@
   function buildBookingMessage(apartment, checkIn, checkOut, guests) {
     const nights = nightsBetween(checkIn, checkOut);
     const lines = [
-      `Ol\xE1! Gostaria de saber mais sobre o aluguel do ${apartment.name}.`,
+      `Ol\xE1! Fiz a pr\xE9 reserva, pelo site, do ${apartment.name}.`,
       "",
       `\u{1F4C5} Per\xEDodo: ${formatDate(checkIn)} at\xE9 ${formatDate(checkOut)}`,
       `\u{1F319} Di\xE1rias: ${plural(nights, "di\xE1ria", "di\xE1rias")}`,
@@ -314,8 +314,8 @@
     ];
     const price = bookingPrice(apartment, nights);
     if (price) {
-      lines.push(`\u{1F4B0} Valor da di\xE1ria: ${formatBRL(price.daily)}`);
-      if (price.cleaning) lines.push(`\u{1F9F9} Taxa de limpeza: ${formatBRL(price.cleaning)}`);
+      lines.push(`\u{1F4B5} Valor da di\xE1ria: ${formatBRL(price.daily)}`);
+      if (price.cleaning) lines.push(`\u{1F4B8} Taxa de limpeza: ${formatBRL(price.cleaning)}`);
       lines.push(`\u{1F4B0} Total estimado: ${formatBRL(price.total)}`);
     }
     return lines.join("\n");

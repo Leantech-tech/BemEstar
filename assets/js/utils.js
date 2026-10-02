@@ -185,7 +185,7 @@ export function buildWhatsAppLink(message) {
 export function buildBookingMessage(apartment, checkIn, checkOut, guests) {
   const nights = nightsBetween(checkIn, checkOut);
   const lines = [
-    `Olá! Gostaria de saber mais sobre o aluguel do ${apartment.name}.`,
+    `Olá! Fiz a pré reserva, pelo site, do ${apartment.name}.`,
     '',
     `📅 Período: ${formatDate(checkIn)} até ${formatDate(checkOut)}`,
     `🌙 Diárias: ${plural(nights, 'diária', 'diárias')}`,
@@ -193,8 +193,8 @@ export function buildBookingMessage(apartment, checkIn, checkOut, guests) {
   ];
   const price = bookingPrice(apartment, nights);
   if (price) {
-    lines.push(`💰 Valor da diária: ${formatBRL(price.daily)}`);
-    if (price.cleaning) lines.push(`🧹 Taxa de limpeza: ${formatBRL(price.cleaning)}`);
+    lines.push(`💵 Valor da diária: ${formatBRL(price.daily)}`);
+    if (price.cleaning) lines.push(`💸 Taxa de limpeza: ${formatBRL(price.cleaning)}`);
     lines.push(`💰 Total estimado: ${formatBRL(price.total)}`);
   }
   return lines.join('\n');
