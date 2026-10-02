@@ -541,7 +541,7 @@
           <div><dt>Apartamento</dt><dd>${apartment.name}</dd></div>
           <div><dt>Entrada</dt><dd>${formatDate(state.checkIn)}</dd></div>
           <div><dt>Sa\xEDda</dt><dd>${formatDate(state.checkOut)}</dd></div>
-          <div><dt>Perman\xEAncia</dt><dd>${plural(nights, "noite", "noites")}</dd></div>
+          <div><dt>Perman\xEAncia</dt><dd>${plural(nights, "di\xE1ria", "di\xE1rias")}</dd></div>
           <div><dt>Pessoas</dt><dd>${formatGuests(state.guests)}</dd></div>
         </dl>
         <a href="${waLink}" target="_blank" rel="noopener" class="btn btn-whatsapp btn-lg bk-wa">

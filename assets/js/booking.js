@@ -127,7 +127,7 @@ export function openBooking(apartment) {
           <div><dt>Apartamento</dt><dd>${apartment.name}</dd></div>
           <div><dt>Entrada</dt><dd>${formatDate(state.checkIn)}</dd></div>
           <div><dt>Saída</dt><dd>${formatDate(state.checkOut)}</dd></div>
-          <div><dt>Permanência</dt><dd>${plural(nights, 'noite', 'noites')}</dd></div>
+          <div><dt>Permanência</dt><dd>${plural(nights, 'diária', 'diárias')}</dd></div>
           <div><dt>Pessoas</dt><dd>${formatGuests(state.guests)}</dd></div>
         </dl>
         <a href="${waLink}" target="_blank" rel="noopener" class="btn btn-whatsapp btn-lg bk-wa">
