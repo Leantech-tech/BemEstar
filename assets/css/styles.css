@@ -1198,6 +1198,17 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   color: var(--ink);
   text-align: right;
 }
+.bk-summary .bk-total {
+  background: var(--bg-soft);
+}
+.bk-summary .bk-total dt {
+  color: var(--ink);
+  font-weight: 600;
+}
+.bk-summary .bk-total dd {
+  font-weight: 700;
+  color: var(--accent-strong);
+}
 
 /* ---------- Calendário Moderno ---------- */
 .cal {
