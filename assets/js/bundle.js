@@ -555,7 +555,9 @@
       const priceRows = price ? `
           <div><dt>Valor da di\xE1ria</dt><dd>${formatBRL(price.daily)}</dd></div>
           ${price.cleaning ? `<div><dt>Taxa de limpeza</dt><dd>${formatBRL(price.cleaning)}</dd></div>` : ""}
-          <div class="bk-total"><dt>Total estimado</dt><dd>${formatBRL(price.total)}</dd></div>` : "";
+          <div class="bk-total"><dt>Total estimado</dt><dd>${formatBRL(price.total)}</dd></div>` : `
+          <div><dt>Valor da di\xE1ria</dt><dd>Sob consulta</dd></div>
+          <div class="bk-total"><dt>Total estimado</dt><dd>Sob consulta</dd></div>`;
       body.innerHTML = `
       <div class="bk-step-body">
         <h3 class="bk-title">Confira as informa\xE7\xF5es</h3>

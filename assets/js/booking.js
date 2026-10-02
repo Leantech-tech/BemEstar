@@ -123,6 +123,7 @@ export function openBooking(apartment) {
     const waLink = buildWhatsAppLink(buildBookingMessage(apartment, state.checkIn, state.checkOut, state.guests));
 
     // Valores: diária × noites, somando a taxa de limpeza quando houver.
+    // Sem diária cadastrada, os campos aparecem como "Sob consulta".
     const price = bookingPrice(apartment, nights);
 
     const priceRows = price
@@ -130,7 +131,9 @@ export function openBooking(apartment) {
           <div><dt>Valor da diária</dt><dd>${formatBRL(price.daily)}</dd></div>
           ${price.cleaning ? `<div><dt>Taxa de limpeza</dt><dd>${formatBRL(price.cleaning)}</dd></div>` : ''}
           <div class="bk-total"><dt>Total estimado</dt><dd>${formatBRL(price.total)}</dd></div>`
-      : '';
+      : `
+          <div><dt>Valor da diária</dt><dd>Sob consulta</dd></div>
+          <div class="bk-total"><dt>Total estimado</dt><dd>Sob consulta</dd></div>`;
 
     body.innerHTML = `
       <div class="bk-step-body">
