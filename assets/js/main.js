@@ -317,11 +317,12 @@ function setupPromoMode() {
 
   document.getElementById('apartamentos')?.setAttribute('hidden', '');
   document.getElementById('pontos-interesse')?.setAttribute('hidden', '');
+  document.getElementById('como-funciona')?.setAttribute('hidden', '');
   document.getElementById('leantechPromo')?.removeAttribute('hidden');
 
   // Esconde os links de navegação das seções removidas
   document
-    .querySelectorAll('a[href="#apartamentos"], a[href="#pontos-interesse"]')
+    .querySelectorAll('a[href="#apartamentos"], a[href="#pontos-interesse"], a[href="#como-funciona"]')
     .forEach((a) => a.setAttribute('hidden', ''));
 }
 

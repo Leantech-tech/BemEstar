@@ -1714,8 +1714,9 @@ Lembrando que amanh\xE3 cedo ir\xE1 ligar automaticamente, para filtrar a \xE1gu
     if (linkedWhatsApp()) return;
     document.getElementById("apartamentos")?.setAttribute("hidden", "");
     document.getElementById("pontos-interesse")?.setAttribute("hidden", "");
+    document.getElementById("como-funciona")?.setAttribute("hidden", "");
     document.getElementById("leantechPromo")?.removeAttribute("hidden");
-    document.querySelectorAll('a[href="#apartamentos"], a[href="#pontos-interesse"]').forEach((a) => a.setAttribute("hidden", ""));
+    document.querySelectorAll('a[href="#apartamentos"], a[href="#pontos-interesse"], a[href="#como-funciona"]').forEach((a) => a.setAttribute("hidden", ""));
   }
   function init() {
     bindConfig();

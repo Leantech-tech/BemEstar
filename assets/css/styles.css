@@ -1269,6 +1269,35 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .leantech-promo .btn {
   margin-top: 0.4rem;
 }
+.promo-about {
+  width: 100%;
+  margin-top: 1.2rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--line);
+  text-align: left;
+}
+.promo-about h3 {
+  margin: 0 0 0.8rem;
+  font-size: 1.25rem;
+  color: var(--ink);
+  text-align: center;
+}
+.promo-about p {
+  margin: 0 0 0.7rem;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+.promo-about ul {
+  margin: 0 0 1rem;
+  padding-left: 1.3rem;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+.promo-about li + li {
+  margin-top: 0.45rem;
+}
 
 /* ---------- Calendário Moderno ---------- */
 .cal {
