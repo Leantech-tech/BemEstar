@@ -297,11 +297,13 @@
   }
   function buildBookingMessage(apartment, checkIn, checkOut, guests) {
     const nights = nightsBetween(checkIn, checkOut);
-    const lines = [
+    return [
       `Ol\xE1! Gostaria de saber mais sobre o aluguel do ${apartment.name}.`,
-      `Tenho interesse no per\xEDodo de ${formatDate(checkIn)} at\xE9 ${formatDate(checkOut)}` + (nights > 0 ? ` (${plural(nights, "noite", "noites")})` : "") + `, para ${plural(guests, "pessoa", "pessoas")}.`
-    ];
-    return lines.join("\n");
+      "",
+      `\u{1F4C5} Per\xEDodo: ${formatDate(checkIn)} at\xE9 ${formatDate(checkOut)}`,
+      `\u{1F319} Di\xE1rias: ${plural(nights, "di\xE1ria", "di\xE1rias")}`,
+      `\u{1F465} H\xF3spedes: ${plural(guests, "pessoa", "pessoas")}`
+    ].join("\n");
   }
   var FALLBACK_IMG = "data:image/svg+xml;utf8," + encodeURIComponent(
     `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900"><rect width="1200" height="900" fill="#E8E2D6"/><g fill="none" stroke="#B9AE9C" stroke-width="10" stroke-linecap="round"><path d="M430 470c45-45 90-45 135 0s90 45 135 0 90-45 135 0"/><path d="M430 540c45-45 90-45 135 0s90 45 135 0 90-45 135 0"/></g><text x="600" y="640" font-family="Georgia, serif" font-size="40" fill="#8D8172" text-anchor="middle">Foto do apartamento</text></svg>`

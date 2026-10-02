@@ -169,13 +169,13 @@ export function buildWhatsAppLink(message) {
 /** Mensagem contextualizada do fluxo de reserva. */
 export function buildBookingMessage(apartment, checkIn, checkOut, guests) {
   const nights = nightsBetween(checkIn, checkOut);
-  const lines = [
+  return [
     `Olá! Gostaria de saber mais sobre o aluguel do ${apartment.name}.`,
-    `Tenho interesse no período de ${formatDate(checkIn)} até ${formatDate(checkOut)}` +
-      (nights > 0 ? ` (${plural(nights, 'noite', 'noites')})` : '') +
-      `, para ${plural(guests, 'pessoa', 'pessoas')}.`,
-  ];
-  return lines.join('\n');
+    '',
+    `📅 Período: ${formatDate(checkIn)} até ${formatDate(checkOut)}`,
+    `🌙 Diárias: ${plural(nights, 'diária', 'diárias')}`,
+    `👥 Hóspedes: ${plural(guests, 'pessoa', 'pessoas')}`,
+  ].join('\n');
 }
 
 /* ============================================================
