@@ -13,23 +13,15 @@ import {
 } from './utils.js';
 
 /* ============================================================
- *  Liga os dados de configuração ao HTML (brand, endereço,
- *  links de WhatsApp, mapa).
+ *  Liga os dados de configuração ao HTML (brand e links de
+ *  WhatsApp). O contato mostra apenas o telefone.
  * ============================================================ */
 function bindConfig() {
   document.querySelectorAll('[data-bind="brandName"]').forEach((el) => (el.textContent = SITE_CONFIG.brandName));
-  document.querySelectorAll('[data-bind="addressLine1"]').forEach((el) => (el.textContent = SITE_CONFIG.address.line1));
-  document.querySelectorAll('[data-bind="addressLine2"]').forEach((el) => (el.textContent = SITE_CONFIG.address.line2));
-  document.querySelectorAll('[data-bind="addressCity"]').forEach((el) => (el.textContent = SITE_CONFIG.address.city));
   document.querySelectorAll('[data-bind="whatsappDisplay"]').forEach((el) => (el.textContent = SITE_CONFIG.whatsappDisplay));
 
   const generalLink = buildWhatsAppLink(SITE_CONFIG.whatsappDefaultMessage);
   document.querySelectorAll('[data-whatsapp-general]').forEach((a) => (a.href = generalLink));
-
-  document.querySelectorAll('[data-maps-link]').forEach((a) => (a.href = SITE_CONFIG.mapsUrl));
-
-  const map = document.getElementById('mapFrame');
-  if (map) map.src = SITE_CONFIG.mapsEmbed;
 }
 
 /* ============================================================
@@ -108,26 +100,6 @@ async function loadCompany() {
       const local = digits.slice(-11);
       SITE_CONFIG.whatsappNumber = '55' + local;
       SITE_CONFIG.whatsappDisplay = formatWhatsAppDisplay(local);
-    }
-
-    if (empresa.address || empresa.city) {
-      const city = empresa.city
-        ? empresa.state
-          ? `${empresa.city} — ${empresa.state}`
-          : empresa.city
-        : SITE_CONFIG.address.city;
-      SITE_CONFIG.address = {
-        line1: empresa.address || SITE_CONFIG.address.line1,
-        line2: empresa.city || SITE_CONFIG.address.line2,
-        city,
-      };
-      const query = [empresa.address, empresa.city, empresa.state].filter(Boolean).join(', ');
-      if (query) {
-        SITE_CONFIG.mapsUrl =
-          'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(query);
-        SITE_CONFIG.mapsEmbed =
-          'https://www.google.com/maps?q=' + encodeURIComponent(query) + '&output=embed';
-      }
     }
   } catch {
     /* mantém a configuração padrão do config.js */
